@@ -1,0 +1,10 @@
+{
+  "name": "node-vestaboard",
+  "version": "0.0.1",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "axios": "^1.4.0",
+    "bidirectional-map": "^1.1.1"
+  }
+}
