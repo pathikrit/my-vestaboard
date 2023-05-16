@@ -1,7 +1,10 @@
 import BiMap from 'bidirectional-map'
 import axios from 'axios'
 
-class Vestaboard {
+export class Vestaboard {
+  static ROWS = 6
+  static COLS = 22
+
   static charMap = new BiMap({
     ' ': 0,
     'A': 1,
@@ -71,7 +74,6 @@ class Vestaboard {
     '🟫': 71
   })
 
-
   constructor({rwKey}) {
     this.api = axios.create({
       baseURL: 'https://rw.vestaboard.com',
@@ -85,11 +87,46 @@ class Vestaboard {
   read = () => this.api.get('/')
 
   write = (msg) => {
-    require(msg.length === 6 && msg.all(row => row.length === 22), 'Message must be 22x6')
+    console.assert(msg.length === Vestaboard.ROWS && msg.every(row => row.length === Vestaboard.COLS), `Message must be ${Vestaboard.ROWS}x${Vestaboard.COLS}`)
+    console.log(msg)
+  }
+
+  writeHaiku = (haiku) => {
+    const rainbow = ['🟥', '🟧', '🟨', '🟩', '🟦', '🟪']
+    const r = () => Math.floor(rainbow.length * Math.random())
+    let b1 = r(), b2 = r()
+    while (b2 === b1) b2 =  r()
+
+    const result = new Array(Vestaboard.ROWS).fill(' ').map(() => new Array(Vestaboard.COLS).fill(' '))
+    for (let r = 0; r < Vestaboard.ROWS; r++)
+      for (let c = 0; c < Vestaboard.COLS; c++)
+        result[r][c] = (r+c)%2 === 0 ? rainbow[b1] : rainbow[b2]
+
+    const nul = '␀'
+
+    const lines = haiku
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0)
+      .flatMap(line => {
+        console.assert(line.length <= 2*(Vestaboard.COLS - 2), `LINE=[${line}] is too long`)
+        if (line.length <= Vestaboard.COLS - 2) return [line]
+        let breakIdx = line.indexOf(', ')
+        if (breakIdx < 0) breakIdx = line.indexOf(' ', Vestaboard.COLS/2)
+        console.assert(breakIdx >= 0, `Could not split LINE=[${line}]`)
+        return [line.substring(0, breakIdx+1), line.substring(breakIdx+1)]
+      })
+      .map(line => line.trim())
+      .map(line => {
+        const spaces = Vestaboard.COLS - line.length
+        return Array.from(nul.repeat(spaces/2) + line + nul.repeat((spaces+1)/2))
+      })
+    console.assert(lines.length <= Vestaboard.ROWS, `Too many lines in ${lines}`)
+
+    for (let r = 0; r < lines.length; r++)
+      for (let c = 0; c < lines[r].length; c++)
+        if (lines[r][c] !== nul) result[r + (lines.length > 4 ? 0 : 1)][c] = lines[r][c]
+
+    this.write(result.map(row => row.join('')))
   }
 }
-
-
-const message = [
-
-]
