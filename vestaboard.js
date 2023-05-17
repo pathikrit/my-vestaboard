@@ -129,4 +129,8 @@ export class Vestaboard {
 
     this.write(result.map(row => row.join('')))
   }
+
+  renderWeather = (forecast) => {
+    // https://github.com/vbguyny/ws4kp/blob/578d62a255cbae885fd3c3e840eed19d7a0bf434/Scripts/Icons.js#L124
+  }
 }
