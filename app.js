@@ -1,12 +1,10 @@
-import {Vestaboard} from './vestaboard.js'
-import _ from 'lodash'
+import { Vestaboard } from './vestaboard.js'
 import 'core-js/actual/array/group.js'
 import axios from 'axios'
-import { mean, mode } from 'mathjs'
+import { mean } from 'mathjs'
 import { Configuration as OpenAIConfig, OpenAIApi, ChatCompletionRequestMessageRoleEnum as Role } from 'openai'
 import dotenv from 'dotenv'
 dotenv.config()
-
 
 const config = {
   chatApiParams: { model: 'gpt-3.5-turbo' },
@@ -29,15 +27,12 @@ const weather = () => axios.get(config.weather.url)
     .filter(entry => entry.isDaytime && entry.dateTime.getHours() > 10)
     .group(entry => entry.dateTime.toISOString().split('T')[0])
   )
-  .then(daily => _.mapValues(daily, entries => ({
-    'temperature': Math.round(mean(entries.map(e => e.temperature))),
-    'description': mode(entries.map(e => e.shortForecast))
+  .then(daily => Object.entries(daily).map(([date, entries]) => ({
+    date: new Date(date),
+    temperature: Math.round(mean(entries.map(e => e.temperature))),
+    descriptions: entries.map(e => e.shortForecast)
   })))
 
 const board = new Vestaboard({rwKey: null})
 
-weather().then(res => console.log(res))
-
-/*
-7/22 MON X 77*F
- */
+weather().then(board.renderWeather)

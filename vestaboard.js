@@ -1,5 +1,6 @@
 import BiMap from 'bidirectional-map'
 import axios from 'axios'
+import { mode } from 'mathjs'
 
 export class Vestaboard {
   static ROWS = 6
@@ -88,7 +89,7 @@ export class Vestaboard {
 
   write = (msg) => {
     console.assert(msg.length === Vestaboard.ROWS && msg.every(row => row.length === Vestaboard.COLS), `Message must be ${Vestaboard.ROWS}x${Vestaboard.COLS}`)
-    console.log(msg)
+    console.log(msg.map(row => row.toUpperCase()))
   }
 
   writeHaiku = (haiku) => {
@@ -131,6 +132,56 @@ export class Vestaboard {
   }
 
   renderWeather = (forecast) => {
+
     // https://github.com/vbguyny/ws4kp/blob/578d62a255cbae885fd3c3e840eed19d7a0bf434/Scripts/Icons.js#L124
+    const iconToKeyword = {
+      '🟥': ['Hot'],
+      '🟧': ['Sunny', 'Clear'],
+      '🟩': ['Fair', 'Windy', 'Breezy', 'Blustery'],
+      '🟪': ['Frost', 'Cold'],
+      '⬛': ['Cloud', 'Haze', 'Overcast', 'Fog', 'Smoke', 'Ash', 'Dust', 'Sand'],
+      '🟦': ['Sleet', 'Spray', 'Rain', 'Shower', 'Tstms', 'Spouts'],
+      '⬜️': ['Snow', 'Ice', 'Blizzard']
+    }
+
+    const msgLength = Vestaboard.COLS - (4+3+1+1)
+
+    const normalize = description => description
+      .split('/')[0]
+      .replace('Increasing', '')
+      .replace('Becoming', '')
+      .replace('Decreasing', '')
+      .replace('Gradual', '')
+      .replace('Patchy', '')
+      .replace('Areas', '')
+      .replace('Slight Chance', 'Slight')
+      .replace('Chance', 'Slight')
+      .replace('Isolated', 'Slight')
+      .replace('Freezing', '')
+      .replace('Rain Showers', 'Rain')
+      .replace('Drizzle', 'Rain')
+      .replace('Lt ', 'Light ')
+      .replace('Rain Fog', 'Rain')
+      .replace('Spray', 'Rain')
+      .replace('Snow Showers', 'Snow')
+      .replace('Wintry Mix', 'Snow')
+      .replace('Flurries', 'Snow')
+      .replace('Scattered', 'Slight')
+      .replace('Thunderstorms', 'Tstsm')
+      .split(/[^A-Za-z]/)
+      .reduce((msg, token) => (msg + ' ' + token).length <=  msgLength ? (msg + ' ' + token) : msg.padEnd(msgLength, ' '))
+
+    const result = forecast
+      .sort((a, b) => a.date < b.date)
+      .slice(0, Vestaboard.ROWS)
+      .map(row => Object.assign(row, {
+        day: row.date.toLocaleString('default', {weekday: 'short'}),
+        description: mode(row.descriptions.map(normalize))[0]
+      }))
+      .map(row => {
+        const [icon, _] = Object.entries(iconToKeyword).find(([_, kws]) => kws.some(kw => row.description.includes(kw)))
+        return row.day.padEnd(4, ' ') + row.temperature.toString().padStart(3, ' ') + (icon ?? ' ') + ' ' + row.description.padEnd(msgLength, ' ')
+      })
+    this.write(result)
   }
 }
