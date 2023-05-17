@@ -1,6 +1,7 @@
 import BiMap from 'bidirectional-map'
 import axios from 'axios'
 import { mode } from 'mathjs'
+import dayjs from 'dayjs'
 
 export class Vestaboard {
   static ROWS = 6
@@ -88,8 +89,8 @@ export class Vestaboard {
   read = () => this.api.get('/')
 
   write = (msg) => {
-    console.assert(msg.length === Vestaboard.ROWS && msg.every(row => row.length === Vestaboard.COLS), `Message must be ${Vestaboard.ROWS}x${Vestaboard.COLS}`)
-    console.log(msg.map(row => row.toUpperCase()))
+    console.assert(msg.length === Vestaboard.ROWS && msg.every(row => row.length === Vestaboard.COLS), `Message must be ${Vestaboard.ROWS}x${Vestaboard.COLS} but is ${msg.length}x${msg.map(row => row.length)}`)
+    console.log(msg.map(row => row.join('').toUpperCase()))
   }
 
   writeHaiku = (haiku) => {
@@ -128,10 +129,12 @@ export class Vestaboard {
       for (let c = 0; c < lines[r].length; c++)
         if (lines[r][c] !== nul) result[r + (lines.length > 4 ? 0 : 1)][c] = lines[r][c]
 
-    this.write(result.map(row => row.join('')))
+    return this.write(result)
   }
 
   renderWeather = (forecast) => {
+    const msgLength = Vestaboard.COLS - (4+3+1+1)
+
     // https://github.com/vbguyny/ws4kp/blob/578d62a255cbae885fd3c3e840eed19d7a0bf434/Scripts/Icons.js#L124
     const iconToKeyword = {
       '🟥': ['Hot'],
@@ -142,9 +145,6 @@ export class Vestaboard {
       '🟦': ['Sleet', 'Spray', 'Rain', 'Shower', 'Tstms', 'Spouts'],
       '⬜️': ['Snow', 'Ice', 'Blizzard']
     }
-
-    const msgLength = Vestaboard.COLS - (4+3+1+1)
-
     const normalize = description => description
       .split('/')[0]
       .replace('Increasing', '')
@@ -168,20 +168,17 @@ export class Vestaboard {
       .replace('Scattered', 'Slight')
       .replace('Thunderstorms', 'Tstsm')
       .split(/[^A-Za-z]/)
-      .reduce((msg, token) => (msg + ' ' + token).length <=  msgLength ? (msg + ' ' + token) : msg.padEnd(msgLength, ' '))
+      .reduce((msg, token) => (msg + ' ' + token).length <= msgLength ? (msg + ' ' + token) : msg.padEnd(msgLength, ' '))
 
     const result = forecast
       .sort((a, b) => a.date < b.date)
       .slice(0, Vestaboard.ROWS)
-      .map(row => Object.assign(row, {
-        day: row.date.toLocaleString('default', {weekday: 'short'}),
-        isTomorrow: Math.floor((row.date - Date.now())/(24 * 60 * 60 * 1000)) === 1,
-        description: mode(row.descriptions.map(normalize))[0]
-      }))
       .map(row => {
-        const [icon, _] = Object.entries(iconToKeyword).find(([_, kws]) => kws.some(kw => row.description.includes(kw)))
-        return ((row.isTomorrow ? '°' : '') + row.day).padEnd(4, ' ') + row.temperature.toString().padStart(3, ' ') + (icon ?? ' ') + ' ' + row.description.padEnd(msgLength, ' ')
+        const isTomorrow = row.date.diff(dayjs(), 'days') === 1
+        const description = mode(row.descriptions.map(normalize))[0]
+        const [icon, _] = Object.entries(iconToKeyword).find(([_, kws]) => kws.some(kw => description.includes(kw)))
+        return ((isTomorrow ? '°' : '') + row.date.format('ddd')).padEnd(4, ' ') + row.temperature.toString().padStart(3, ' ') + (icon ?? ' ') + ' ' + description.padEnd(msgLength, ' ')
       })
-    this.write(result)
+    return this.write(result.map(row => Array.from(row)))
   }
 }
