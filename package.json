@@ -11,6 +11,7 @@
     "dotenv": "^16.0.3",
     "lodash": "^4.17.21",
     "mathjs": "^11.8.0",
-    "openai": "^3.2.1"
+    "openai": "^3.2.1",
+    "yahoo-finance2": "^2.4.1"
   }
 }
