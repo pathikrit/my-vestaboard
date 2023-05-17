@@ -18,20 +18,31 @@ const config = {
 const openai = new OpenAIApi(new OpenAIConfig({apiKey: config.openAiApiKey}))
 
 class Haiku {
-  static regularPrompts = [
-    "Write a haiku about a 1-year old boy named Aidan. He loves his mom, his pet cat Tigri and red Pontiac solstices.",
-    "Write a haiku about a beautiful Bengal cat called Tigri. She likes to purr on us, bask in the sun and eat tuna.",
-  ].map(prompt => prompt + " You don't have to use all this information - just giving helpful tips.")
+  static idx = 0
+
+  static peoplePrompts = [
+    {birthday: '21-Mar', prompt: "Write a haiku about a cute baby boy named Aidan. He loves his mom, his pet cat Tigri and red Pontiac Solstice."},
+    {birthday: '21-Mar', prompt: "Write a haiku about a beautiful Bengal cat called Tigri. She likes to purr on us, bask in the sun and eat tuna."},
+    {birthday: '5-Feb' , prompt: "Write a haiku about a beautiful woman named Nastassia. She likes to play with her little boy, Aidan and sleep with her husband."},
+  ].map(({birthday, prompt}) => {
+    const suffix = dayjs().format('DD-MMM') === birthday ? 'Today is their birthday!' :
+      "You don't have to use all this information - just giving helpful tips."
+    return prompt + ' ' + suffix + ' . Just respond with the haiku and nothing else.'
+  })
 
   static specialPrompts = {
-    '5-Feb': '',
-    '14-Feb': ''
+    '14-Feb': "Today is Valentine's Day. Write a Haiku about a beautiful woman named Nastassia who loves her husband, Rick.",
+     '8-Mar': "Today is Woman's Day. Write a Haiku about a beautiful woman named Nastassia.",
+    '29-Aug': "Today is marriage anniversary of Rick and Nastassia. Write a haiku about them.",
+    '21-Dec': "Today is wedding anniversary of Rick and Nastassia. Write a haiku about them."
   }
-}
 
-const newHaiku = prompt => openai
-  .createChatCompletion(Object.assign(config.chatApiParams, {messages: [{role: Role.User, content: prompt}]}))
-  .then(res => res.data.choices[0].message.content)
+  static nextPrompt = () => Haiku.specialPrompts[dayjs().format('DD-MMM')] ?? Haiku.peoplePrompts[(Haiku.idx = (Haiku.idx + 1)%(Haiku.peoplePrompts.length))]
+
+  static generate = (prompt = Haiku.nextPrompt()) => openai
+    .createChatCompletion(Object.assign(config.chatApiParams, {messages: [{role: Role.User, content: prompt}]}))
+    .then(res => res.data.choices[0].message.content)
+}
 
 const weather = () => axios.get(config.weather.url)
   .then(res => res.data.properties.periods)
@@ -48,4 +59,4 @@ const weather = () => axios.get(config.weather.url)
 
 const board = new Vestaboard({rwKey: null})
 
-weather().then(board.renderWeather)
+console.log(Haiku.generate().then(board.writeHaiku))
