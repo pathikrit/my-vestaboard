@@ -4,6 +4,9 @@ import { mode } from 'mathjs'
 import dayjs from 'dayjs'
 import _ from 'lodash'
 
+Array.prototype.sortBy = function (arg) {return _.sortBy(this, arg)}
+Array.prototype.chunked = function (arg) {return _.chunk(this, arg)}
+
 export class Vestaboard {
   static ROWS = 6
   static COLS = 22
@@ -94,6 +97,15 @@ export class Vestaboard {
     console.log(msg.map(row => row.join('').toUpperCase()))
   }
 
+  debug = () => {
+    const chars = Object.entries(Vestaboard.charMap.getObject())
+      .map(([letter, code]) => ({letter: letter, code: code}))
+      .sortBy(row => row.code)
+      .flatMap(({letter, code}) => [' ', letter])
+      .chunked(Vestaboard.COLS)
+    return this.write(chars)
+  }
+
   writeHaiku = (haiku) => {
     const rainbow = ['🟥', '🟧', '🟨', '🟩', '🟦', '🟪']
     const r = () => Math.floor(rainbow.length * Math.random())
@@ -131,14 +143,6 @@ export class Vestaboard {
         if (lines[r][c] !== nul) result[r + (lines.length > 4 ? 0 : 1)][c] = lines[r][c]
 
     return this.write(result)
-  }
-
-  debug = () => {
-    const chars = Object.entries(Vestaboard.charMap.getObject())
-      .map(([letter, code]) => ({letter: letter, code: code}))
-      .sort((a, b) => a.code - b.code)
-      .flatMap(({letter, code}) => [' ', letter])
-    return this.write(_.chunk(chars, Vestaboard.COLS))
   }
 
   renderWeather = (forecast) => {
@@ -180,14 +184,37 @@ export class Vestaboard {
       .reduce((msg, token) => (msg + ' ' + token).length <= msgLength ? (msg + ' ' + token) : msg.padEnd(msgLength, ' '))
 
     const result = forecast
-      .sort((a, b) => a.diff(b))
+      .sortBy(row => row.date.valueOf())
       .slice(0, Vestaboard.ROWS)
       .map(row => {
         const isTomorrow = row.date.diff(dayjs(), 'days') === 1
         const description = mode(row.descriptions.map(normalize))[0]
         const [icon, _] = Object.entries(iconToKeyword).find(([_, kws]) => kws.some(kw => description.includes(kw)))
-        return ((isTomorrow ? '°' : '') + row.date.format('ddd')).padEnd(4, ' ') + row.temperature.toString().padStart(3, ' ') + (icon ?? ' ') + ' ' + description.padEnd(msgLength, ' ')
+        return [
+          ((isTomorrow ? '°' : '') + row.date.format('ddd')).padEnd(4, ' '),
+          row.temperature.toString().padStart(3, ' '),
+          (icon ?? ' '),
+          ' ',
+          description.padEnd(msgLength, ' ')
+        ].join('')
       })
+    return this.write(result.map(row => Array.from(row)))
+  }
+
+  tickerTape = (quotes) => {
+    const result = quotes
+      .sortBy(quote => quote.name)
+      .slice(0, 2*Vestaboard.ROWS)
+      .map(({name, regularMarketChangePercent}) =>
+        [
+          name.padEnd(4, ' '),
+          regularMarketChangePercent < 0 ? '🟥' : '🟩',
+          regularMarketChangePercent.toFixed(regularMarketChangePercent > -10 ? 1 : 0).padStart(4, ' '),
+          '%'
+        ].join('')
+      )
+      .chunked(2)
+      .map(row => row.join('  '))
     return this.write(result.map(row => Array.from(row)))
   }
 }
