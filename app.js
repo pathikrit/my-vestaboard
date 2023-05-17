@@ -17,7 +17,7 @@ const config = {
   haikuPrompts: {
     regular: [
       {birthday: '21-Mar', prompt: "Write a haiku about a cute baby boy named Aidan. He loves his mom, his pet cat Tigri and red Pontiac Solstice."},
-      {birthday: '21-Mar', prompt: "Write a haiku about a beautiful Bengal cat called Tigri. She likes to purr on us, bask in the sun and eat tuna."},
+      {birthday: '21-Mar', prompt: "Write a haiku about a beautiful Bengal cat called Tigri. She likes to purr on us while we sleep, bask in the sun and eat tuna."},
       {birthday: '5-Feb' , prompt: "Write a haiku about a beautiful woman named Nastassia. She likes to play with her little boy, Aidan and sleep with her husband."},
     ].map(({birthday, prompt}) => {
       const suffix = dayjs().format('DD-MMM') === birthday ? 'Today is their birthday!' :
@@ -44,7 +44,8 @@ const config = {
     {ticker: 'BABA'},
     {ticker: '^GSPC', name: 'S&P'},
     {ticker: '^TYX', name: 'US30'},
-  ]
+  ],
+  jobIntervalMinutes: 10
 }
 
 const board = new Vestaboard({rwKey: null})
@@ -74,12 +75,13 @@ const weather = () => axios.get(config.weather.url)
 
 const quote = ({ticker, name}) => yahooFinance.quote(ticker).then(quote => Object.assign(quote, {name: name ?? ticker}))
 
+let jobId = 0
 const jobs = [
   () => weather().then(board.renderWeather),
   () => Haiku.generate().then(board.writeHaiku),
   () => Promise.all(config.tickers.map(quote)).then(board.tickerTape)
 ]
-
-jobs[2]()
+board.debug()
+setInterval(() => jobs[jobId = (jobId + 1)%jobs.length](), config.jobIntervalMinutes * 60 * 1000)
 
 
