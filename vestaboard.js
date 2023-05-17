@@ -132,7 +132,6 @@ export class Vestaboard {
   }
 
   renderWeather = (forecast) => {
-
     // https://github.com/vbguyny/ws4kp/blob/578d62a255cbae885fd3c3e840eed19d7a0bf434/Scripts/Icons.js#L124
     const iconToKeyword = {
       '🟥': ['Hot'],
@@ -176,11 +175,12 @@ export class Vestaboard {
       .slice(0, Vestaboard.ROWS)
       .map(row => Object.assign(row, {
         day: row.date.toLocaleString('default', {weekday: 'short'}),
+        isTomorrow: Math.floor((row.date - Date.now())/(24 * 60 * 60 * 1000)) === 1,
         description: mode(row.descriptions.map(normalize))[0]
       }))
       .map(row => {
         const [icon, _] = Object.entries(iconToKeyword).find(([_, kws]) => kws.some(kw => row.description.includes(kw)))
-        return row.day.padEnd(4, ' ') + row.temperature.toString().padStart(3, ' ') + (icon ?? ' ') + ' ' + row.description.padEnd(msgLength, ' ')
+        return ((row.isTomorrow ? '°' : '') + row.day).padEnd(4, ' ') + row.temperature.toString().padStart(3, ' ') + (icon ?? ' ') + ' ' + row.description.padEnd(msgLength, ' ')
       })
     this.write(result)
   }
