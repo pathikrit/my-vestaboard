@@ -82,6 +82,4 @@ const jobs = [
   () => Promise.all(config.tickers.map(quote)).then(board.tickerTape)
 ]
 board.debug()
-setInterval(() => jobs[jobId = (jobId + 1)%jobs.length](), config.jobIntervalMinutes * 60 * 1000)
-
-
+setInterval(() => jobs[jobId = (jobId + 1)%jobs.length]().catch(err => console.error(JSON.stringify(err))), config.jobIntervalMinutes * 60 * 1000)

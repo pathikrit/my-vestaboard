@@ -94,6 +94,8 @@ export class Vestaboard {
 
   write = (msg) => {
     console.assert(msg.length === Vestaboard.ROWS && msg.every(row => row.length === Vestaboard.COLS), `Message must be ${Vestaboard.ROWS}x${Vestaboard.COLS} but is ${msg.length}x${msg.map(row => row.length)}`)
+    const debug = msg.map(row => row.map(c => Vestaboard.charMap.get(c.toUpperCase())))
+    console.debug(debug)
     console.log(msg.map(row => row.join('').toUpperCase()))
   }
 
