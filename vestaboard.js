@@ -2,6 +2,7 @@ import BiMap from 'bidirectional-map'
 import axios from 'axios'
 import { mode } from 'mathjs'
 import dayjs from 'dayjs'
+import _ from 'lodash'
 
 export class Vestaboard {
   static ROWS = 6
@@ -132,6 +133,14 @@ export class Vestaboard {
     return this.write(result)
   }
 
+  debug = () => {
+    const chars = Object.entries(Vestaboard.charMap.getObject())
+      .map(([letter, code]) => ({letter: letter, code: code}))
+      .sort((a, b) => a.code - b.code)
+      .flatMap(({letter, code}) => [' ', letter])
+    return this.write(_.chunk(chars, Vestaboard.COLS))
+  }
+
   renderWeather = (forecast) => {
     const msgLength = Vestaboard.COLS - (4+3+1+1)
 
@@ -171,7 +180,7 @@ export class Vestaboard {
       .reduce((msg, token) => (msg + ' ' + token).length <= msgLength ? (msg + ' ' + token) : msg.padEnd(msgLength, ' '))
 
     const result = forecast
-      .sort((a, b) => a.date < b.date)
+      .sort((a, b) => a.diff(b))
       .slice(0, Vestaboard.ROWS)
       .map(row => {
         const isTomorrow = row.date.diff(dayjs(), 'days') === 1
