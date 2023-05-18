@@ -11,6 +11,7 @@ dotenv.config()
 const config = {
   chatApiParams: { model: 'gpt-3.5-turbo' },
   openAiApiKey: process.env.OPENAI_API_KEY,
+  vestaBoardApiKey: process.env.VESTABOARD_READ_WRITE_KEY,
   weather: {
     url: 'https://api.weather.gov/gridpoints/OKX/34,45/forecast/hourly' // Get this from https://api.weather.gov/points/40.9375,-73.9477
   },
@@ -45,11 +46,10 @@ const config = {
     {ticker: '^GSPC', name: 'S&P'},
     {ticker: '^TYX', name: 'US30'},
   ],
-  jobIntervalMinutes: 10
+  jobIntervalMinutes: 1
 }
 
-const board = new Vestaboard({rwKey: null})
-
+const board = new Vestaboard({rwKey: config.vestaBoardApiKey})
 const openai = new OpenAIApi(new OpenAIConfig({apiKey: config.openAiApiKey}))
 
 class Haiku {
@@ -78,8 +78,8 @@ const quote = ({ticker, name}) => yahooFinance.quote(ticker).then(quote => Objec
 let jobId = 0
 const jobs = [
   () => weather().then(board.renderWeather),
-  () => Haiku.generate().then(board.writeHaiku),
+//  () => Haiku.generate().then(board.writeHaiku),
   () => Promise.all(config.tickers.map(quote)).then(board.tickerTape)
 ]
-board.debug()
+//board.debug()
 setInterval(() => jobs[jobId = (jobId + 1)%jobs.length]().catch(err => console.error(JSON.stringify(err))), config.jobIntervalMinutes * 60 * 1000)

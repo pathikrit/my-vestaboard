@@ -3,6 +3,7 @@ import axios from 'axios'
 import { mode } from 'mathjs'
 import dayjs from 'dayjs'
 import _ from 'lodash'
+import assert from 'node:assert'
 
 Array.prototype.sortBy = function (arg) {return _.sortBy(this, arg)}
 Array.prototype.chunked = function (arg) {return _.chunk(this, arg)}
@@ -91,12 +92,13 @@ export class Vestaboard {
   }
 
   read = () => this.api.get('/')
+    .then(res => JSON.parse(res.data.currentMessage.layout).map(row => row.map(code => Vestaboard.charMap.getKey(code)).join('')))
 
   write = (msg) => {
-    console.assert(msg.length === Vestaboard.ROWS && msg.every(row => row.length === Vestaboard.COLS), `Message must be ${Vestaboard.ROWS}x${Vestaboard.COLS} but is ${msg.length}x${msg.map(row => row.length)}`)
-    const debug = msg.map(row => row.map(c => Vestaboard.charMap.get(c.toUpperCase())))
-    console.debug(debug)
+    assert(msg.length === Vestaboard.ROWS && msg.every(row => row.length === Vestaboard.COLS), `Message must be ${Vestaboard.ROWS}x${Vestaboard.COLS} but is ${msg.length}x${msg.map(row => row.length)}`)
     console.log(msg.map(row => row.join('').toUpperCase()))
+    const payload = msg.map(row => row.map(c => Vestaboard.charMap.get(c.toUpperCase()) ?? 0))
+    return this.api.post('/', payload).catch(err => console.error(err.toJSON()))
   }
 
   debug = () => {
@@ -126,11 +128,11 @@ export class Vestaboard {
       .map(line => line.trim())
       .filter(line => line.length > 0)
       .flatMap(line => {
-        console.assert(line.length <= 2*(Vestaboard.COLS - 2), `LINE=[${line}] is too long`)
+        assert(line.length <= 2*(Vestaboard.COLS - 2), `LINE=[${line}] is too long`)
         if (line.length <= Vestaboard.COLS - 2) return [line]
         let breakIdx = line.indexOf(', ')
         if (breakIdx < 0) breakIdx = line.indexOf(' ', Vestaboard.COLS/2)
-        console.assert(breakIdx >= 0, `Could not split LINE=[${line}]`)
+        assert(breakIdx >= 0, `Could not split LINE=[${line}]`)
         return [line.substring(0, breakIdx+1), line.substring(breakIdx+1)]
       })
       .map(line => line.trim())
@@ -138,7 +140,7 @@ export class Vestaboard {
         const spaces = Vestaboard.COLS - line.length
         return Array.from(nul.repeat(spaces/2) + line + nul.repeat((spaces+1)/2))
       })
-    console.assert(lines.length <= Vestaboard.ROWS, `Too many lines in ${lines}`)
+    assert(lines.length <= Vestaboard.ROWS, `Too many lines in ${lines}`)
 
     for (let r = 0; r < lines.length; r++)
       for (let c = 0; c < lines[r].length; c++)
@@ -156,8 +158,8 @@ export class Vestaboard {
       '🟧': ['Sunny', 'Clear'],
       '🟩': ['Fair', 'Windy', 'Breezy', 'Blustery'],
       '🟪': ['Frost', 'Cold'],
-      '⬛': ['Cloud', 'Haze', 'Overcast', 'Fog', 'Smoke', 'Ash', 'Dust', 'Sand'],
-      '🟦': ['Sleet', 'Spray', 'Rain', 'Shower', 'Tstms', 'Spouts'],
+      '⬛': ['Cloud', 'Haze', 'Overcast', 'Fog', 'Smoke', 'Ash', 'Dust', 'Sand', 'Tstms'],
+      '🟦': ['Sleet', 'Spray', 'Rain', 'Shower', 'Spouts'],
       '⬜️': ['Snow', 'Ice', 'Blizzard']
     }
     const normalize = description => description
