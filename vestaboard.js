@@ -190,10 +190,12 @@ export class Vestaboard {
       .slice(0, Vestaboard.ROWS)
       .map(row => {
         const description = mode(row.descriptions.map(normalize))[0]
+        let icon = _.findKey(iconToKeyword, kws => kws.some(kw => description.includes(kw)))
+        if (row.date.isToday() && row.endHour === 23 && icon && icon !== '⬜️') icon = '⬛' // Show either Night or Snow in night
         return [
           row.date.format('ddd'),
           row.temperature.toString().padStart(4, ' '),
-          _.findKey(iconToKeyword, kws => kws.some(kw => description.includes(kw))) ?? ' ',
+          icon ?? '?',
           ' ',
           description.padEnd(msgLength, ' ')
         ].join('')
