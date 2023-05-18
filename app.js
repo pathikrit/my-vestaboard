@@ -83,5 +83,6 @@ const jobs = [
   () => Haiku.generate().then(board.writeHaiku),
   () => Promise.all(config.tickers.map(quote)).then(board.tickerTape)
 ]
+//board.read().then(res => console.log('Current board', res))
 board.debug()
 setInterval(() => jobs[jobId = (jobId + 1)%jobs.length]().catch(err => console.error(err)), config.jobIntervalMinutes * 60 * 1000)
