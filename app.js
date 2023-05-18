@@ -47,7 +47,7 @@ const config = {
     {ticker: '^GSPC', name: 'S&P'},
     {ticker: '^TYX', name: 'US30'},
   ],
-  jobIntervalMinutes: 1
+  jobIntervalMinutes: 10
 }
 
 const board = new Vestaboard({rwKey: config.vestaBoardApiKey})

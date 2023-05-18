@@ -103,9 +103,8 @@ export class Vestaboard {
 
   debug = () => {
     const chars = Object.entries(Vestaboard.charMap.getObject())
-      .map(([letter, code]) => ({letter: letter, code: code}))
-      .sortBy(row => row.code)
-      .flatMap(({letter, code}) => [' ', letter])
+      .sortBy(([letter, code]) => code)
+      .flatMap(([letter, code]) => [letter, (code%10).toString()])
       .chunked(Vestaboard.COLS)
     return this.write(chars)
   }
@@ -155,8 +154,8 @@ export class Vestaboard {
     // https://github.com/vbguyny/ws4kp/blob/578d62a255cbae885fd3c3e840eed19d7a0bf434/Scripts/Icons.js#L124
     const iconToKeyword = {
       '🟥': ['Hot'],
-      '🟧': ['Sunny', 'Clear'],
-      '🟩': ['Fair', 'Windy', 'Breezy', 'Blustery'],
+      '🟧': ['Sunny', 'Clear', 'Fair'],
+      '🟩': ['Windy', 'Breezy', 'Blustery'],
       '🟪': ['Frost', 'Cold'],
       '⬛': ['Cloud', 'Haze', 'Overcast', 'Fog', 'Smoke', 'Ash', 'Dust', 'Sand', 'Tstms'],
       '🟦': ['Sleet', 'Spray', 'Rain', 'Shower', 'Spouts'],
