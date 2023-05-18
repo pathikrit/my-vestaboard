@@ -190,13 +190,11 @@ export class Vestaboard {
       .sortBy(row => row.date.valueOf())
       .slice(0, Vestaboard.ROWS)
       .map(row => {
-        const isTomorrow = row.date.diff(dayjs().format('YYYY-MM-DD'), 'days') === 1
         const description = mode(row.descriptions.map(normalize))[0]
-        const icon = _.findKey(iconToKeyword, kws => kws.some(kw => description.includes(kw)))
         return [
-          ((isTomorrow ? '°' : '') + row.date.format('ddd')).padEnd(4, ' '),
+          ((row.date.isTomorrow() ? '°' : '') + row.date.format('ddd')).padEnd(4, ' '),
           row.temperature.toString().padStart(3, ' '),
-          icon ?? ' ',
+          _.findKey(iconToKeyword, kws => kws.some(kw => description.includes(kw))) ?? ' ',
           ' ',
           description.padEnd(msgLength, ' ')
         ].join('')
