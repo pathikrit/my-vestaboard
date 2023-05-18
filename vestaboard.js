@@ -192,11 +192,11 @@ export class Vestaboard {
       .map(row => {
         const isTomorrow = row.date.diff(dayjs().format('YYYY-MM-DD'), 'days') === 1
         const description = mode(row.descriptions.map(normalize))[0]
-        const [icon, _] = Object.entries(iconToKeyword).find(([_, kws]) => kws.some(kw => description.includes(kw)))
+        const icon = _.findKey(iconToKeyword, kws => kws.some(kw => description.includes(kw)))
         return [
           ((isTomorrow ? '°' : '') + row.date.format('ddd')).padEnd(4, ' '),
           row.temperature.toString().padStart(3, ' '),
-          (icon ?? ' '),
+          icon ?? ' ',
           ' ',
           description.padEnd(msgLength, ' ')
         ].join('')
@@ -207,12 +207,11 @@ export class Vestaboard {
   tickerTape = (quotes) => {
     const result = quotes
       .sortBy(quote => quote.name)
-      .slice(0, 2*Vestaboard.ROWS)
-      .map(({name, regularMarketChangePercent}) =>
+      .map(({name, pctChange}) =>
         [
           name.padEnd(4, ' '),
-          regularMarketChangePercent < 0 ? '🟥' : '🟩',
-          regularMarketChangePercent.toFixed(regularMarketChangePercent > -10 ? 1 : 0).padStart(4, ' '),
+          pctChange < 0 ? '🟥' : '🟩',
+          pctChange.toFixed(pctChange > -10 ? 1 : 0).padStart(4, ' '),
           '%'
         ].join('')
       )
