@@ -78,12 +78,13 @@ const weather = () => axios.get(config.weather.url)
 const quote = ({ticker, name}) => yahooFinance.quote(ticker)
   .then(quote => Object.assign(quote, {name: name ?? ticker, pctChange: quote.regularMarketChangePercent}))
 
-let jobId = 0
 const jobs = [
   () => weather().then(board.renderWeather),
   () => Haiku.generate().then(board.writeHaiku),
   () => Promise.all(config.tickers.map(quote)).then(board.tickerTape)
 ]
-//board.read().then(res => console.log('Current board', res))
-board.debug()
-setInterval(() => jobs[jobId = (jobId + 1)%jobs.length]().catch(err => console.error(err)), config.jobIntervalMinutes * 60 * 1000)
+const run = (jobId) => jobs[jobId]()
+  .catch(err => console.error(err))
+  .finally(() => setTimeout(run, config.jobIntervalMinutes * 60 * 1000, (jobId + 1)%jobs.length))
+
+run(0) //Yolo!
