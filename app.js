@@ -1,6 +1,7 @@
 import { Vestaboard } from './vestaboard.js'
 import 'core-js/actual/array/group.js'
 import axios from 'axios'
+import _ from 'lodash'
 import { mean } from 'mathjs'
 import dayjs from 'dayjs-with-plugins'
 import yahooFinance from 'yahoo-finance2'
@@ -15,7 +16,7 @@ const config = {
   vestaBoardApiKey: process.env.VESTABOARD_READ_WRITE_KEY,
   weather: {
     url: 'https://api.weather.gov/gridpoints/OKX/34,45/forecast/hourly', // Get this from https://api.weather.gov/points/40.9375,-73.9477
-    dayTime: [10, 17] // We only care about weather between 10am and 5pm
+    dayTime: {start: 10, end: 17} // We only care about weather between 10am and 5pm
   },
   haikuPrompts: {
     regular: [
@@ -66,12 +67,18 @@ const weather = () => axios.get(config.weather.url)
   .then(res => res.data.properties.periods)
   .then(entries => entries
     .map(entry => Object.assign(entry, {dateTime: dayjs(entry.startTime)}))
-    .filter(entry => entry.isDaytime && config.weather.dayTime[0] < entry.dateTime.hour() && entry.dateTime.hour() < config.weather.dayTime[1])
+    .filter(entry => {
+      const isDayTime = entry.isDaytime && config.weather.dayTime.start < entry.dateTime.hour() && entry.dateTime.hour() < config.weather.dayTime.end
+      const isTonight = entry.dateTime.isToday() && dayjs().hour() >= config.weather.dayTime.end
+      return entry.dateTime.isAfter(dayjs()) && (isDayTime || isTonight)
+    })
     .group(entry => entry.dateTime.format('YYYY-MM-DD'))
   )
   .then(daily => Object.entries(daily).map(([date, entries]) => ({
     date: dayjs(date),
     temperature: Math.round(mean(entries.map(e => e.temperature))),
+    startHour: _.min(entries.map(e => e.dateTime.hour())),
+    endHour: _.max(entries.map(e => e.dateTime.hour())),
     descriptions: entries.map(e => e.shortForecast)
   })))
 

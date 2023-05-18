@@ -1,7 +1,6 @@
 import BiMap from 'bidirectional-map'
 import axios from 'axios'
 import { mode } from 'mathjs'
-import dayjs from 'dayjs'
 import _ from 'lodash'
 import assert from 'node:assert'
 
@@ -149,7 +148,7 @@ export class Vestaboard {
   }
 
   renderWeather = (forecast) => {
-    const msgLength = Vestaboard.COLS - (4+3+1+1)
+    const msgLength = Vestaboard.COLS - (3+4+1+1)
 
     // https://github.com/vbguyny/ws4kp/blob/578d62a255cbae885fd3c3e840eed19d7a0bf434/Scripts/Icons.js#L124
     const iconToKeyword = {
@@ -192,8 +191,8 @@ export class Vestaboard {
       .map(row => {
         const description = mode(row.descriptions.map(normalize))[0]
         return [
-          ((row.date.isTomorrow() ? '°' : '') + row.date.format('ddd')).padEnd(4, ' '),
-          row.temperature.toString().padStart(3, ' '),
+          row.date.format('ddd'),
+          row.temperature.toString().padStart(4, ' '),
           _.findKey(iconToKeyword, kws => kws.some(kw => description.includes(kw))) ?? ' ',
           ' ',
           description.padEnd(msgLength, ' ')
