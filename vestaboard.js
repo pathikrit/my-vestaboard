@@ -78,7 +78,7 @@ export class Vestaboard {
     '🟪': 68,
     '⬜️': 69,
     '⬛️': 70,
-    '🟫': 71
+    '▮': 71
   })
 
   constructor({rwKey}) {

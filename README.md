@@ -2,7 +2,7 @@
 
 This currently cycles through and does one of the following:
 
-## Generates a random haiku using [ChatGPT](https://github.com/openai/openai-node) e.g. here's one about my [cat](https://tigri.cat)
+## Generates a random haiku using [ChatGPT](https://github.com/openai/openai-node) e.g. here's one about my [cat](http://tigri.cat)
    ![haiku](screenshots/haiku.jpg)
 
 ## Shows today's weather using the [National Weather Service API](https://www.weather.gov/documentation/services-web-api)
