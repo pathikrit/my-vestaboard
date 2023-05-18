@@ -13,7 +13,8 @@ const config = {
   openAiApiKey: process.env.OPENAI_API_KEY,
   vestaBoardApiKey: process.env.VESTABOARD_READ_WRITE_KEY,
   weather: {
-    url: 'https://api.weather.gov/gridpoints/OKX/34,45/forecast/hourly' // Get this from https://api.weather.gov/points/40.9375,-73.9477
+    url: 'https://api.weather.gov/gridpoints/OKX/34,45/forecast/hourly', // Get this from https://api.weather.gov/points/40.9375,-73.9477
+    dayTime: [10, 17] // We only care about weather between 10am and 5pm
   },
   haikuPrompts: {
     regular: [
@@ -64,7 +65,7 @@ const weather = () => axios.get(config.weather.url)
   .then(res => res.data.properties.periods)
   .then(entries => entries
     .map(entry => Object.assign(entry, {dateTime: dayjs(entry.startTime)}))
-    .filter(entry => entry.isDaytime && entry.dateTime.hour() > 10)
+    .filter(entry => entry.isDaytime && config.weather.dayTime[0] < entry.dateTime.hour() && entry.dateTime.hour() < config.weather.dayTime[1])
     .group(entry => entry.dateTime.format('YYYY-MM-DD'))
   )
   .then(daily => Object.entries(daily).map(([date, entries]) => ({
@@ -78,8 +79,8 @@ const quote = ({ticker, name}) => yahooFinance.quote(ticker).then(quote => Objec
 let jobId = 0
 const jobs = [
   () => weather().then(board.renderWeather),
-//  () => Haiku.generate().then(board.writeHaiku),
+  () => Haiku.generate().then(board.writeHaiku),
   () => Promise.all(config.tickers.map(quote)).then(board.tickerTape)
 ]
-//board.debug()
+board.debug()
 setInterval(() => jobs[jobId = (jobId + 1)%jobs.length]().catch(err => console.error(JSON.stringify(err))), config.jobIntervalMinutes * 60 * 1000)

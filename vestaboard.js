@@ -191,7 +191,7 @@ export class Vestaboard {
       .sortBy(row => row.date.valueOf())
       .slice(0, Vestaboard.ROWS)
       .map(row => {
-        const isTomorrow = row.date.diff(dayjs(), 'days') === 1
+        const isTomorrow = row.date.diff(dayjs().format('YYYY-MM-DD'), 'days') === 1
         const description = mode(row.descriptions.map(normalize))[0]
         const [icon, _] = Object.entries(iconToKeyword).find(([_, kws]) => kws.some(kw => description.includes(kw)))
         return [
