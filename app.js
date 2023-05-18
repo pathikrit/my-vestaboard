@@ -8,8 +8,9 @@ import { Configuration as OpenAIConfig, OpenAIApi, ChatCompletionRequestMessageR
 import dotenv from 'dotenv'
 dotenv.config()
 
+process.env.TZ = 'America/New_York'
 const config = {
-  chatApiParams: { model: 'gpt-3.5-turbo' },
+  chatApiParams: { model: 'gpt-3.5-turbo' }, // See https://platform.openai.com/docs/api-reference/chat/create
   openAiApiKey: process.env.OPENAI_API_KEY,
   vestaBoardApiKey: process.env.VESTABOARD_READ_WRITE_KEY,
   weather: {
@@ -24,7 +25,7 @@ const config = {
     ].map(({birthday, prompt}) => {
       const suffix = dayjs().format('DD-MMM') === birthday ? 'Today is their birthday!' :
         "You don't have to use all this information - just giving helpful tips."
-      return prompt + ' ' + suffix + ' . Just respond with the haiku and nothing else.'
+      return [prompt, suffix, 'Just respond with the haiku and nothing else.'].join(' ')
     }),
     special: {
       '14-Feb': "Today is Valentine's Day. Write a Haiku about a beautiful woman named Nastassia who loves her husband, Rick.",
