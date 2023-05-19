@@ -59,7 +59,8 @@ assert(_.sum(config.retryIntervalMinutes) < config.jobIntervalMinutes, 'Retries 
 
 export const makeRetry = (client) => axiosRetry(client, {
   retries: config.retryIntervalMinutes.length,
-  retryDelay: (retryCount) => config.retryIntervalMinutes[retryCount]
+  retryDelay: (retryCount) =>  config.retryIntervalMinutes[retryCount] * 60 * 1000,
+  onRetry: (retryCount, error, requestConfig) => console.warn(`Retrying web call (${retryCount} retries)`, requestConfig, error.toJSON())
 })
 
 makeRetry(axios)
