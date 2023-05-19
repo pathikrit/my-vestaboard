@@ -3,6 +3,7 @@ import axios from 'axios'
 import { mode } from 'mathjs'
 import _ from 'lodash'
 import assert from 'node:assert'
+import { makeRetry } from './app.js'
 
 Array.prototype.sortBy = function (arg) {return _.sortBy(this, arg)}
 Array.prototype.chunked = function (arg) {return _.chunk(this, arg)}
@@ -88,6 +89,7 @@ export class Vestaboard {
         'X-Vestaboard-Read-Write-Key': rwKey,
       }
     })
+    makeRetry(this.api)
   }
 
   read = () => this.api.get('/')

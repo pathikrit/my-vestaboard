@@ -1,11 +1,13 @@
 import { Vestaboard } from './vestaboard.js'
 import 'core-js/actual/array/group.js'
 import axios from 'axios'
+import axiosRetry from 'axios-retry'
 import _ from 'lodash'
 import { mean } from 'mathjs'
 import dayjs from 'dayjs-with-plugins'
 import yahooFinance from 'yahoo-finance2'
 import { Configuration as OpenAIConfig, OpenAIApi, ChatCompletionRequestMessageRoleEnum as Role } from 'openai'
+import assert from 'node:assert'
 import dotenv from 'dotenv'
 dotenv.config()
 
@@ -54,8 +56,17 @@ const config = {
       {ticker: 'SNOW'},
     ]
   },
-  jobIntervalMinutes: 60
+  jobIntervalMinutes: 60,
+  retryIntervalMinutes: [1, 2, 3, 4, 5]
 }
+assert(_.sum(config.retryIntervalMinutes) < config.jobIntervalMinutes, 'Retries must finish within job gap')
+
+export const makeRetry = (client) => axiosRetry(client, {
+  retries: config.retryIntervalMinutes.length,
+  retryDelay: (retryCount) => config.retryIntervalMinutes[retryCount]
+})
+
+makeRetry(axios)
 
 const board = new Vestaboard({rwKey: config.vestaBoardApiKey})
 const openai = new OpenAIApi(new OpenAIConfig({apiKey: config.openAiApiKey}))
