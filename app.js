@@ -54,7 +54,7 @@ const config = {
       {ticker: 'SNOW'},
     ]
   },
-  jobIntervalMinutes: 10
+  jobIntervalMinutes: 60
 }
 
 const board = new Vestaboard({rwKey: config.vestaBoardApiKey})
@@ -69,6 +69,7 @@ class Haiku {
 }
 
 const weather = () => axios.get(config.weather.url)
+  .catch(error => Promise.reject(error.toJSON()))
   .then(res => res.data.properties.periods)
   .then(entries => entries
     .map(entry => Object.assign(entry, {dateTime: dayjs(entry.startTime)}))

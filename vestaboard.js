@@ -91,13 +91,14 @@ export class Vestaboard {
   }
 
   read = () => this.api.get('/')
+    .catch(error => Promise.reject(error.toJSON()))
     .then(res => JSON.parse(res.data.currentMessage.layout).map(row => row.map(code => Vestaboard.charMap.getKey(code)).join('')))
 
   write = (msg) => {
     assert(msg.length === Vestaboard.ROWS && msg.every(row => row.length === Vestaboard.COLS), `Message must be ${Vestaboard.ROWS}x${Vestaboard.COLS} but is ${msg.length}x${msg.map(row => row.length)}`)
     console.log(msg.map(row => row.join('').toUpperCase()))
     const payload = msg.map(row => row.map(c => Vestaboard.charMap.get(c.toUpperCase()) ?? 0))
-    return this.api.post('/', JSON.stringify(payload)).catch(err => console.error(err.toJSON()))
+    return this.api.post('/', JSON.stringify(payload)).catch(error => Promise.reject(error.toJSON()))
   }
 
   debug = () => {
