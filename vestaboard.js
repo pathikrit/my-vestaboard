@@ -163,30 +163,23 @@ export class Vestaboard {
       '🟦': ['Sleet', 'Spray', 'Rain', 'Shower', 'Spouts'],
       '⬜️': ['Snow', 'Ice', 'Blizzard']
     }
-    const normalize = description => description
-      .split('/')[0]
-      .replace('Increasing', '')
-      .replace('Becoming', '')
-      .replace('Decreasing', '')
-      .replace('Gradual', '')
-      .replace('Patchy', '')
-      .replace('Areas', '')
-      .replace('Slight Chance', 'Slight')
-      .replace('Chance', 'Slight')
-      .replace('Isolated', 'Slight')
-      .replace('Freezing', '')
-      .replace('Rain Showers', 'Rain')
-      .replace('Drizzle', 'Rain')
-      .replace('Lt ', 'Light ')
-      .replace('Rain Fog', 'Rain')
-      .replace('Spray', 'Rain')
-      .replace('Snow Showers', 'Snow')
-      .replace('Wintry Mix', 'Snow')
-      .replace('Flurries', 'Snow')
-      .replace('Scattered', 'Slight')
-      .replace('Thunderstorms', 'Tstsm')
-      .split(/[^A-Za-z]/)
-      .reduce((msg, token) => (msg + ' ' + token).length <= msgLength ? (msg + ' ' + token) : msg.padEnd(msgLength, ' '))
+    const normalizers = [
+      {to: '', from: ['Increasing', 'Becoming', 'Decreasing', 'Gradual', 'Patchy', 'Areas', 'Freezing']},
+      {to: 'Slight', from: ['Slight Chance', 'Chance', 'Isolated', 'Scattered']},
+      {to: 'Rain', from: ['Rain Showers', 'Spray', 'Rain Fog']},
+      {to: 'Snow', from: ['Snow Showers', 'Wintry Mix', 'Flurries']},
+      {to: 'Light ', from: ['Lt ']},
+      {to: 'Tstms ', from: ['Thunderstorms']}
+    ]
+    const normalize = description => {
+      description = description.split('/')[0]
+      for (const {to, from} of normalizers)
+        for (const token of from)
+          description = description.replace(token, to)
+      return description
+        .split(/[^A-Za-z]/)
+        .reduce((msg, token) => (msg + ' ' + token).length <= msgLength ? (msg + ' ' + token) : msg.padEnd(msgLength, ' '))
+    }
 
     const result = forecast
       .sortBy(row => row.date.valueOf())
