@@ -37,25 +37,21 @@ const config = {
       '21-Dec': "Today is wedding anniversary of Rick and Nastassia. Write a haiku about them."
     }
   },
-  tickers: {
-    required: [
-      {ticker: 'MSFT'},
-      {ticker: 'AAPL'},
-      {ticker: 'TSLA'},
-      {ticker: 'META', name: 'FB'},
-      {ticker: 'AMZN'},
-      {ticker: 'GOOGL', name: 'GOOG'},
-      {ticker: 'BTC-USD', name: 'BTC'},
-      {ticker: '^GSPC', name: 'S&P'},
-      {ticker: '^TYX', name: 'US30'},
-    ],
-    optional: [
-      {ticker: 'TSM', name: 'TSMC'},
-      {ticker: 'BAC', name: 'BOFA'},
-      {ticker: 'BABA'},
-      {ticker: 'SNOW'},
-    ]
-  },
+  tickers: [
+    {ticker: 'MSFT'},
+    {ticker: 'AAPL'},
+    {ticker: 'TSLA'},
+    {ticker: 'META', name: 'FB'},
+    {ticker: 'AMZN'},
+    {ticker: 'GOOGL', name: 'GOOG'},
+    {ticker: 'BTC-USD', name: 'BTC'},
+    {ticker: '^GSPC', name: 'S&P'},
+    {ticker: '^TYX', name: 'US30'},
+    {ticker: 'TSM', name: 'TSMC'},
+    {ticker: 'BAC', name: 'BOFA'},
+    {ticker: 'BABA'},
+    {ticker: 'SNOW'}
+  ],
   jobIntervalMinutes: 60,
   retryIntervalMinutes: [1, 2, 3, 4, 5]
 }
@@ -102,12 +98,10 @@ const weather = () => axios.get(config.weather.url)
 const quote = ({ticker, name}) => yahooFinance.quote(ticker)
   .then(quote => Object.assign(quote, {name: name ?? ticker, pctChange: quote.regularMarketChangePercent}))
 
-const tickers = () => config.tickers.required.concat(_.shuffle(config.tickers.optional)).slice(0, 2*Vestaboard.ROWS)
-
 const jobs = [
   () => weather().then(board.renderWeather),
   () => Haiku.generate().then(board.writeHaiku),
-  () => Promise.all(tickers().map(quote)).then(board.tickerTape)
+  () => Promise.all(config.tickers.map(quote)).then(board.tickerTape)
 ]
 const run = (jobId) => jobs[jobId]()
   .catch(err => console.error(err))

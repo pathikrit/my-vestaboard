@@ -208,6 +208,8 @@ export class Vestaboard {
 
   tickerTape = (quotes) => {
     const result = quotes
+      .sortBy(quote => Math.abs(quote.pctChange))
+      .slice(0, 2*Vestaboard.ROWS)
       .sortBy(quote => quote.name)
       .map(({name, pctChange}) =>
         [
