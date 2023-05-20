@@ -39,7 +39,12 @@ const config = {
     }
   },
   googleTasks: {
-    token: process.env.googleTasks.token, // see https://developers.google.com/tasks/quickstart/nodejs
+    token: { // see https://developers.google.com/tasks/quickstart/nodejs
+      type: "authorized_user",
+      client_id: process.env.GOOGLE_TASKS_TOKEN_CLIENT_ID,
+      client_secret: process.env.GOOGLE_TASKS_TOKEN_CLIENT_SECRET,
+      refresh_token: process.env.GOOGLE_TASKS_TOKEN_REFRESH_TOKEN
+    },
     maxDueDays: 7
   },
   tickers: [

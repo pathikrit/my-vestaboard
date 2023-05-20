@@ -228,7 +228,7 @@ export class Vestaboard {
       .map(task => Object.assign(task, {icon: icon(task.taskList)}))
       .filter(task => task.icon)
       .slice(0, Vestaboard.ROWS)
-      .map(({icon, title}) => (icon + title).padEnd(Vestaboard.COLS, ' ').slice(0, Vestaboard.COLS))
+      .map(({icon, title}) => icon + title.padEnd(Vestaboard.COLS-1, ' ').slice(0, Vestaboard.COLS-1))
     return this.write(result.map(row => Array.from(row)))
   }
 }
