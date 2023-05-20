@@ -6,6 +6,7 @@ import _ from 'lodash'
 import { mean } from 'mathjs'
 import dayjs from 'dayjs-with-plugins'
 import yahooFinance from 'yahoo-finance2'
+import { google } from 'googleapis'
 import { Configuration as OpenAIConfig, OpenAIApi, ChatCompletionRequestMessageRoleEnum as Role } from 'openai'
 import assert from 'node:assert'
 import dotenv from 'dotenv'
@@ -37,6 +38,10 @@ const config = {
       '21-Dec': "Today is wedding anniversary of Rick and Nastassia. Write a haiku about them."
     }
   },
+  googleTasks: {
+    token: process.env.googleTasks.token, // see https://developers.google.com/tasks/quickstart/nodejs
+    maxDueDays: 7
+  },
   tickers: [
     {ticker: 'MSFT'},
     {ticker: 'AAPL'},
@@ -52,8 +57,8 @@ const config = {
     {ticker: 'BABA'},
     {ticker: 'SNOW'}
   ],
-  jobIntervalMinutes: 60,
-  retryIntervalMinutes: [1, 2, 3, 4, 5]
+  jobIntervalMinutes: 60, //TODO: change to 15
+  retryIntervalMinutes: [1, 2, 3, 4]
 }
 assert(_.sum(config.retryIntervalMinutes) < config.jobIntervalMinutes, 'Retries must finish within job gap')
 
@@ -64,7 +69,9 @@ export const makeRetry = (client) => axiosRetry(client, {
 })
 
 makeRetry(axios)
+google.options({auth: google.auth.fromJSON(config.googleTasks.token)})
 
+const taskApi = google.tasks('v1')
 const board = new Vestaboard({rwKey: config.vestaBoardApiKey})
 const openai = new OpenAIApi(new OpenAIConfig({apiKey: config.openAiApiKey}))
 
@@ -99,10 +106,26 @@ const weather = () => axios.get(config.weather.url)
 const quote = ({ticker, name}) => yahooFinance.quote(ticker)
   .then(quote => Object.assign(quote, {name: name ?? ticker, pctChange: quote.regularMarketChangePercent}))
 
+const tasks = (maxDueDays) => {
+  const fetchTaskList = (taskList) => taskApi.tasks
+    .list({
+      tasklist: taskList.id,
+      showCompleted: false,
+      dueMax: dayjs().add(maxDueDays, 'days').format()
+    })
+    .then(res => res.data.items.map(task => Object.assign(task, {taskList: taskList.title})))
+
+  return taskApi
+    .tasklists.list()
+    .then(res => Promise.all(res.data.items.map(fetchTaskList)))
+    .then(tasks => tasks.flat())
+}
+
 const jobs = [
   () => weather().then(board.renderWeather),
   () => Haiku.generate().then(board.writeHaiku),
-  () => Promise.all(config.tickers.map(quote)).then(board.tickerTape)
+  () => Promise.all(config.tickers.map(quote)).then(board.tickerTape),
+  () => tasks(config.googleTasks.maxDueDays).then(board.renderTasks)
 ]
 const run = (jobId) => jobs[jobId]()
   .catch(err => console.error(err))

@@ -94,7 +94,7 @@ export class Vestaboard {
 
   read = () => this.api.get('/')
     .catch(error => Promise.reject(error.toJSON()))
-    .then(res => JSON.parse(res.data.currentMessage.layout).map(row => row.map(code => Vestaboard.charMap.getKey(code)).join('')))
+    .then(res => JSON.parse(res.data.currentMessage.layout).map(row => row.map(code => Vestaboard.charMap.getKey(code) ?? '▮').join('')))
 
   write = (msg) => {
     assert(msg.length === Vestaboard.ROWS && msg.every(row => row.length === Vestaboard.COLS), `Message must be ${Vestaboard.ROWS}x${Vestaboard.COLS} but is ${msg.length}x${msg.map(row => row.length)}`)
@@ -214,6 +214,21 @@ export class Vestaboard {
       )
       .chunked(2)
       .map(row => row.join('  '))
+    return this.write(result.map(row => Array.from(row)))
+  }
+
+  renderTasks = (tasks) => {
+    const icon = (taskList) => {
+      if (taskList.includes('Aidan')) return '🟦'
+      if (taskList.includes('Home')) return '🟩'
+      if (taskList.includes('Nastya')) return '🟪'
+      if (taskList.includes('Rick')) return '⬛'
+    }
+    const result = _.shuffle(tasks)
+      .map(task => Object.assign(task, {icon: icon(task.taskList)}))
+      .filter(task => task.icon)
+      .slice(0, Vestaboard.ROWS)
+      .map(({icon, title}) => (icon + title).padEnd(Vestaboard.COLS, ' ').slice(0, Vestaboard.COLS))
     return this.write(result.map(row => Array.from(row)))
   }
 }
