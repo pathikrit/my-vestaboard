@@ -168,21 +168,25 @@ export class Vestaboard {
       '⬜️': ['Snow', 'Ice', 'Blizzard']
     }
     const normalizers = [
+      {to: '&', from: ['And']},
       {to: '', from: ['Increasing', 'Becoming', 'Decreasing', 'Gradual', 'Patchy', 'Areas', 'Freezing']},
       {to: 'Slight', from: ['Slight Chance', 'Chance', 'Isolated', 'Scattered']},
-      {to: 'Rain', from: ['Rain Showers', 'Spray', 'Rain Fog']},
+      {to: 'Rain', from: ['Rain Showers', 'Spray', 'Rain Fog', 'Showers']},
       {to: 'Snow', from: ['Snow Showers', 'Wintry Mix', 'Flurries']},
       {to: 'Light ', from: ['Lt ']},
       {to: 'Tstms ', from: ['Thunderstorms']}
     ]
     const normalize = description => {
+      const before = description
       description = description.split('/')[0]
       for (const {to, from} of normalizers)
         for (const token of from)
           description = description.replace(token, to)
-      return description
+      description = description
         .split(/[^A-Za-z]/)
         .reduce((msg, token) => (msg + ' ' + token).length <= msgLength ? (msg + ' ' + token) : msg.padEnd(msgLength, ' '))
+      console.debug(before, '->', description)
+      return description
     }
 
     const result = forecast
