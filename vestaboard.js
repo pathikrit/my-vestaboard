@@ -142,7 +142,7 @@ export class Vestaboard {
       })
       .map(line => line.trim())
       .map(line => {
-        const spaces = Vestaboard.COLS - line.length
+        const spaces = Math.max(Vestaboard.COLS - line.length, 0)
         return Array.from(nul.repeat(spaces/2) + line + nul.repeat((spaces+1)/2))
       })
     assert(lines.length <= Vestaboard.ROWS, `Too many lines in ${lines}`)
