@@ -8,6 +8,7 @@
     "axios": "^1.4.0",
     "axios-retry": "^3.5.0",
     "bidirectional-map": "^1.1.1",
+    "cli-table": "^0.3.11",
     "core-js": "^3.30.2",
     "dayjs": "^1.11.7",
     "dayjs-with-plugins": "^1.0.3",

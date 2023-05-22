@@ -4,6 +4,7 @@ import { mode } from 'mathjs'
 import _ from 'lodash'
 import assert from 'node:assert'
 import { makeRetry } from './app.js'
+import Table from 'cli-table'
 
 Array.prototype.sortBy = function (arg) {return _.sortBy(this, arg)}
 Array.prototype.chunked = function (arg) {return _.chunk(this, arg)}
@@ -97,9 +98,12 @@ export class Vestaboard {
     .then(res => JSON.parse(res.data.currentMessage.layout).map(row => row.map(code => Vestaboard.charMap.getKey(code) ?? '▮').join('')))
 
   write = (msg) => {
+    msg = msg.map(row => (_.isString(row) ? Array.from(row) : row).join('').toUpperCase())
+    console.log(msg)
+    msg = msg.map(row => Array.from(row))
     assert(msg.length === Vestaboard.ROWS && msg.every(row => row.length === Vestaboard.COLS), `Message must be ${Vestaboard.ROWS}x${Vestaboard.COLS} but is ${msg.length}x${msg.map(row => row.length)}`)
-    console.log(msg.map(row => row.join('').toUpperCase()))
-    const payload = msg.map(row => row.map(c => Vestaboard.charMap.get(c.toUpperCase()) ?? 0))
+    console.log(new Table({rows: msg}).toString())
+    const payload = msg.map(row => row.map(c => Vestaboard.charMap.get(c) ?? Vestaboard.charMap.get('▮')))
     return this.api.post('/', JSON.stringify(payload)).catch(error => Promise.reject(error.toJSON()))
   }
 
@@ -196,7 +200,7 @@ export class Vestaboard {
           description.padEnd(msgLength, ' ')
         ].join('')
       })
-    return this.write(result.map(row => Array.from(row)))
+    return this.write(result)
   }
 
   tickerTape = (quotes) => {
@@ -214,7 +218,7 @@ export class Vestaboard {
         ].join('')
       )
     result = _.zipWith(result.slice(0, Vestaboard.ROWS), result.slice(Vestaboard.ROWS).sort(), (l, r) => l + ' ' + r)
-    return this.write(result.map(row => Array.from(row)))
+    return this.write(result)
   }
 
   renderTasks = (tasks) => {
@@ -229,6 +233,6 @@ export class Vestaboard {
       .filter(task => task.icon)
       .slice(0, Vestaboard.ROWS)
       .map(({icon, title}) => icon + title.padEnd(Vestaboard.COLS-1, ' ').slice(0, Vestaboard.COLS-1))
-    return this.write(result.map(row => Array.from(row)))
+    return this.write(result)
   }
 }
