@@ -200,20 +200,20 @@ export class Vestaboard {
   }
 
   tickerTape = (quotes) => {
-    const result = quotes
+    let result = quotes
       .sortBy(quote => Math.abs(quote.pctChange))
       .slice(0, 2*Vestaboard.ROWS)
       .sortBy(quote => quote.name)
-      .map(({name, pctChange}) =>
+      .sortBy(quote => quote.name.length > 4) // Makes sure 5 letter tickers are on the right column
+      .map(({name, pctChange}, idx) =>
         [
-          name.padEnd(4, ' '),
+          name.padEnd(idx < Vestaboard.ROWS ? 4 : 5, ' '),
           pctChange < 0 ? '🟥' : '🟩',
           pctChange.toFixed(pctChange > -10 ? 1 : 0).padStart(4, ' '),
           '%'
         ].join('')
       )
-      .chunked(2)
-      .map(row => row.join('  '))
+    result = _.zipWith(result.slice(0, Vestaboard.ROWS), result.slice(Vestaboard.ROWS).sort(), (l, r) => l + ' ' + r)
     return this.write(result.map(row => Array.from(row)))
   }
 
