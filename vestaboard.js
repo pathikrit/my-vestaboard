@@ -8,12 +8,14 @@ import Table from 'cli-table'
 
 Array.prototype.sortBy = function (arg) {return _.sortBy(this, arg)}
 Array.prototype.chunked = function (arg) {return _.chunk(this, arg)}
+Array.prototype.isDefinedAt = function (idx) {return _.inRange(idx, 0, this.length)}
 _.memoize.Cache = Map
 
 export class Vestaboard {
   static ROWS = 6
   static COLS = 22
 
+  static nul = '␀'
   static charMap = new BiMap({ //TODO: Use https://github.com/sebbo2002/vestaboard/blob/develop/src/message.ts
     ' ': 0,
     'A': 1,
@@ -80,7 +82,7 @@ export class Vestaboard {
     '🟪': 68,
     '⬜️': 69,
     '⬛️': 70,
-    '▮': 71
+    '␀': 71
   })
 
   constructor(rwKey) {
@@ -96,14 +98,19 @@ export class Vestaboard {
 
   read = () => this.api.get('/')
     .catch(error => Promise.reject(error.toJSON()))
-    .then(res => JSON.parse(res.data.currentMessage.layout).map(row => row.map(code => Vestaboard.charMap.getKey(code) ?? '▮').join('')))
+    .then(res => JSON.parse(res.data.currentMessage.layout).map(row => row.map(code => Vestaboard.charMap.getKey(code) ?? Vestaboard.nul).join('')))
 
-  write = (msg) => {
-    msg = msg.map(row => (_.isString(row) ? Array.from(row) : row).join('').toUpperCase())
-    console.debug(msg)
-    msg = msg.map(row => Array.from(row))
-    assert(msg.length === Vestaboard.ROWS && msg.every(row => row.length === Vestaboard.COLS), `Message must be ${Vestaboard.ROWS}x${Vestaboard.COLS} but is ${msg.length}x${msg.map(row => row.length)}`)
-    const payload = msg.map(row => row.map(c => Vestaboard.charMap.get(c) ?? Vestaboard.charMap.get('▮')))
+  write = (msg, background = (r, c) => ' ') => {
+    msg = msg.map(row => Array.from((_.isString(row) ? row : row.join('')).toUpperCase()))
+
+    const result = new Array(Vestaboard.ROWS).fill(Vestaboard.nul).map(() => new Array(Vestaboard.COLS).fill(Vestaboard.nul))
+    for (let r = 0; r < Vestaboard.ROWS; r++)
+      for (let c = 0; c < Vestaboard.COLS; c++)
+        result[r][c] = msg.isDefinedAt(r) && msg[r].isDefinedAt(c) ? msg[r][c] : background(r, c)
+
+    console.debug(result.map(row => row.join('')))
+
+    const payload = msg.map(row => row.map(c => Vestaboard.charMap.get(c) ?? Vestaboard.charMap.get(Vestaboard.nul)))
     return this.api.post('/', JSON.stringify(payload))
         .then(_ => console.log(new Table({rows: msg}).toString()))
         .catch(error => Promise.reject(error.toJSON()))
@@ -119,18 +126,11 @@ export class Vestaboard {
 
   writeHaiku = (haiku) => {
     const rainbow = ['🟥', '🟧', '🟨', '🟩', '🟦', '🟪']
-    const r = () => Math.floor(rainbow.length * Math.random())
+    const r = () => _.random(rainbow.length-1)
     let b1 = r(), b2 = r()
     while (b2 === b1) b2 =  r()
 
-    const result = new Array(Vestaboard.ROWS).fill(' ').map(() => new Array(Vestaboard.COLS).fill(' '))
-    for (let r = 0; r < Vestaboard.ROWS; r++)
-      for (let c = 0; c < Vestaboard.COLS; c++)
-        result[r][c] = (r+c)%2 === 0 ? rainbow[b1] : rainbow[b2]
-
-    const nul = '␀'
-
-    const lines = haiku
+    const result = haiku
       .split('\n')
       .map(line => line.trim())
       .filter(line => line.length > 0)
@@ -143,17 +143,12 @@ export class Vestaboard {
         return [line.substring(0, breakIdx+1), line.substring(breakIdx+1)]
       })
       .map(line => line.trim())
-      .map(line => {
-        const spaces = Math.max(Vestaboard.COLS - line.length, 0)
-        return Array.from(nul.repeat(spaces/2) + line + nul.repeat((spaces+1)/2))
-      })
-    assert(lines.length <= Vestaboard.ROWS, `Too many lines in ${lines}`)
+      .map(line => Vestaboard.nul.repeat(Math.max(Vestaboard.COLS - line.length, 0)/2) + line)
+    if (result.length <= 4) result.unshift(Vestaboard.nul)
 
-    for (let r = 0; r < lines.length; r++)
-      for (let c = 0; c < lines[r].length; c++)
-        if (lines[r][c] !== nul) result[r + (lines.length > 4 ? 0 : 1)][c] = lines[r][c]
+    assert(result.length <= Vestaboard.ROWS, `Too many lines in ${result}`)
 
-    return this.write(result)
+    return this.write(result, (r, c) => (r+c)%2 === 0 ? rainbow[b1] : rainbow[b2])
   }
 
   static normalizeWeather = _.memoize((description) => {
@@ -170,7 +165,7 @@ export class Vestaboard {
     description = description.split('/')[0]
     for (const {to, from} of normalizers)
       for (const token of from)
-        description = description.replace(token, to)
+        description = description.replace(token, to) //TODO: regex this
     return description
       .split(/[^A-Za-z]/)
       .reduce((msg, token) => (msg + ' ' + token).length <= msgLength ? (msg + ' ' + token) : msg.padEnd(msgLength, ' '))
@@ -187,7 +182,6 @@ export class Vestaboard {
       '🟦': ['Sleet', 'Spray', 'Rain', 'Shower', 'Spouts'],
       '⬜️': ['Snow', 'Ice', 'Blizzard']
     }
-    const msgLength = Vestaboard.COLS - (3+4+1+1)
     const result = forecast
       .sortBy(row => row.date.valueOf())
       .slice(0, Vestaboard.ROWS)
@@ -200,7 +194,7 @@ export class Vestaboard {
           row.temperature.toString().padStart(4, ' '),
           icon ?? '?',
           ' ',
-          description.padEnd(msgLength, ' ')
+          description
         ].join('')
       })
     console.debug('Normalization', Object.fromEntries(Vestaboard.normalizeWeather.cache))
@@ -237,7 +231,7 @@ export class Vestaboard {
       .map(task => Object.assign(task, {icon: icon(task.taskList)}))
       .filter(task => task.icon)
       .slice(0, Vestaboard.ROWS)
-      .map(({icon, title}) => icon + title.padEnd(Vestaboard.COLS-1, ' ').slice(0, Vestaboard.COLS-1))
+      .map(({icon, title}) => icon + title)
     return this.write(result)
   }
 }
