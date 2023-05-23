@@ -13,6 +13,10 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
+const env = {
+  isProd: process.env.NODE_ENV === 'production'
+}
+
 process.env.TZ = 'America/New_York'
 const config = {
   chatApiParams: {model: 'gpt-3.5-turbo'}, // See https://platform.openai.com/docs/api-reference/chat/create
@@ -70,12 +74,19 @@ const config = {
 }
 assert(_.sum(config.retryIntervalMinutes) < config.jobIntervalMinutes, 'Retries must finish within job gap')
 
-export const makeRetry = (client) => axiosRetry(client, {
-  retries: config.retryIntervalMinutes.length,
-  retryDelay: (retryCount) => config.retryIntervalMinutes[retryCount] * 60 * 1000,
-  retryCondition: (error) => isNetworkOrIdempotentRequestError(error) || error?.response?.status >= 400,
-  onRetry: (retryCount, error) => console.warn(`Retrying web call (${retryCount} retries)`, error.toJSON())
-})
+export const makeRetry = (client) => {
+  client.interceptors.request.use(req => {
+    req.method = req.method.toUpperCase()
+    if (!env.isProd && req.method !== 'GET') return Promise.reject(`${req.method} ${req.url} BLOCKED (cannot make non-GET call from non-prod env)`)
+    return req
+  }, (error) => Promise.reject(error.toJSON()))
+  axiosRetry(client, {
+    retries: config.retryIntervalMinutes.length,
+    retryDelay: (retryCount) => config.retryIntervalMinutes[retryCount] * 60 * 1000,
+    retryCondition: (error) => isNetworkOrIdempotentRequestError(error) || error?.response?.status >= 400,
+    onRetry: (retryCount, error) => console.warn(`Retrying web call (${retryCount} retries)`, error.toJSON())
+  })
+}
 
 makeRetry(axios)
 google.options({auth: google.auth.fromJSON(config.googleTasks.token)})
@@ -93,7 +104,6 @@ class Haiku {
 }
 
 const weather = (url) => axios.get(url)
-  .catch(error => Promise.reject(error.toJSON()))
   .then(res => res.data.properties.periods)
   .then(entries => entries
     .map(entry => Object.assign(entry, {dateTime: dayjs(entry.startTime)}))
