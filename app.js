@@ -132,7 +132,7 @@ const tasks = (maxDueDays) => {
 const jobs = [
   () => weather(config.weather.url).then(board.renderWeather),
   () => Haiku.generate().then(board.writeHaiku),
-  () => Promise.all(config.tickers.map(quote)).then(board.ticker1Cols),
+  () => Promise.all(config.tickers.map(quote)).then(board.tickerTape),
   () => tasks(config.googleTasks.maxDueDays).then(board.renderTasks)
 ]
 const run = (jobId) => jobs[jobId]()

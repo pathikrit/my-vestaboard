@@ -191,6 +191,8 @@ export class Vestaboard {
     return this.write(result.value())
   }
 
+  tickerTape = (quotes) => _.sample([this.ticker1Cols, this.ticker2Cols])(quotes)
+
   ticker1Cols = (quotes) => {
     const result = _.chain(quotes)
       .sortBy(quote => Math.abs(quote.pctChange))
