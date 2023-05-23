@@ -6,7 +6,6 @@ import assert from 'node:assert'
 import {makeRetry} from './app.js'
 import Table from 'cli-table'
 
-Array.prototype.isDefinedAt = function (idx) {return _.inRange(idx, 0, this.length)}
 _.memoize.Cache = Map
 
 export class Vestaboard {
@@ -104,7 +103,7 @@ export class Vestaboard {
     const result = new Array(Vestaboard.ROWS).fill(Vestaboard.nul).map(() => new Array(Vestaboard.COLS).fill(Vestaboard.nul))
     for (let r = 0; r < Vestaboard.ROWS; r++)
       for (let c = 0; c < Vestaboard.COLS; c++)
-        result[r][c] = msg.isDefinedAt(r) && msg[r].isDefinedAt(c) && msg[r][c] !== Vestaboard.nul ? msg[r][c] : background(r, c)
+        result[r][c] = r in msg && c in msg[r] && msg[r][c] !== Vestaboard.nul ? msg[r][c] : background(r, c)
 
     console.debug(result.map(row => row.join('')))
 
@@ -160,12 +159,8 @@ export class Vestaboard {
       {to: 'Snow', from: ['Snow Showers', 'Wintry Mix', 'Flurries']},
       {to: 'Light ', from: ['Lt ']},
       {to: 'Tstms ', from: ['Thunderstorms']}
-    ]
-    description = description.split('/')[0]
-    for (const {to, from} of normalizers)
-      for (const token of from)
-        description = description.replace(token, to) //TODO: regex this
-    return description
+    ].map(({to, from}) => (s) => s.replaceAll(new RegExp(from.join('|'), 'g'), to))
+    return normalizers.reduce((d, f) => f(d), description)
       .split(/[^A-Za-z]/)
       .reduce((msg, token) => (msg + ' ' + token).length <= msgLength ? (msg + ' ' + token) : msg.padEnd(msgLength, ' '))
   })
