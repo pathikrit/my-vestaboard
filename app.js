@@ -73,7 +73,7 @@ export const makeRetry = (client) => axiosRetry(client, {
   retries: config.retryIntervalMinutes.length,
   retryDelay: (retryCount) =>  config.retryIntervalMinutes[retryCount] * 60 * 1000,
   retryCondition: (error) => isNetworkOrIdempotentRequestError(error) || error?.response?.status >= 400,
-  onRetry: (retryCount, error, requestConfig) => console.warn(`Retrying web call (${retryCount} retries)`, requestConfig, error.toJSON())
+  onRetry: (retryCount, error) => console.warn(`Retrying web call (${retryCount} retries)`, error.toJSON())
 })
 
 makeRetry(axios)
@@ -139,4 +139,4 @@ const run = (jobId) => jobs[jobId]()
   .catch(err => console.error(err))
   .finally(() => setTimeout(run, config.jobIntervalMinutes * 60 * 1000, (jobId + 1)%jobs.length))
 
-run(2) //Yolo!
+run(0) //Yolo!

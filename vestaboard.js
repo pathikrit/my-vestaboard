@@ -8,6 +8,7 @@ import Table from 'cli-table'
 
 Array.prototype.sortBy = function (arg) {return _.sortBy(this, arg)}
 Array.prototype.chunked = function (arg) {return _.chunk(this, arg)}
+_.memoize.Cache = Map
 
 export class Vestaboard {
   static ROWS = 6
@@ -177,18 +178,15 @@ export class Vestaboard {
       {to: 'Light ', from: ['Lt ']},
       {to: 'Tstms ', from: ['Thunderstorms']}
     ]
-    const normalize = description => {
-      const before = description
+    const normalize = _.memoize((description) => {
       description = description.split('/')[0]
       for (const {to, from} of normalizers)
         for (const token of from)
           description = description.replace(token, to)
-      description = description
+      return description
         .split(/[^A-Za-z]/)
         .reduce((msg, token) => (msg + ' ' + token).length <= msgLength ? (msg + ' ' + token) : msg.padEnd(msgLength, ' '))
-      console.debug(before, '->', description)
-      return description
-    }
+    })
 
     const result = forecast
       .sortBy(row => row.date.valueOf())
@@ -205,6 +203,8 @@ export class Vestaboard {
           description.padEnd(msgLength, ' ')
         ].join('')
       })
+    console.debug('Normalization', Object.fromEntries(normalize.cache))
+
     return this.write(result)
   }
 
