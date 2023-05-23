@@ -156,9 +156,27 @@ export class Vestaboard {
     return this.write(result)
   }
 
-  renderWeather = (forecast) => {
+  static normalizeWeather = _.memoize((description) => {
     const msgLength = Vestaboard.COLS - (3+4+1+1)
+    const normalizers = [
+      {to: '&', from: ['And']},
+      {to: '', from: ['Increasing', 'Becoming', 'Decreasing', 'Gradual', 'Patchy', 'Areas', 'Freezing']},
+      {to: 'Slight', from: ['Slight Chance', 'Chance', 'Isolated', 'Scattered']},
+      {to: 'Rain', from: ['Rain Showers', 'Spray', 'Rain Fog', 'Showers']},
+      {to: 'Snow', from: ['Snow Showers', 'Wintry Mix', 'Flurries']},
+      {to: 'Light ', from: ['Lt ']},
+      {to: 'Tstms ', from: ['Thunderstorms']}
+    ]
+    description = description.split('/')[0]
+    for (const {to, from} of normalizers)
+      for (const token of from)
+        description = description.replace(token, to)
+    return description
+      .split(/[^A-Za-z]/)
+      .reduce((msg, token) => (msg + ' ' + token).length <= msgLength ? (msg + ' ' + token) : msg.padEnd(msgLength, ' '))
+  })
 
+  renderWeather = (forecast) => {
     // https://github.com/vbguyny/ws4kp/blob/578d62a255cbae885fd3c3e840eed19d7a0bf434/Scripts/Icons.js#L124
     const iconToKeyword = {
       '🟥': ['Hot'],
@@ -169,30 +187,12 @@ export class Vestaboard {
       '🟦': ['Sleet', 'Spray', 'Rain', 'Shower', 'Spouts'],
       '⬜️': ['Snow', 'Ice', 'Blizzard']
     }
-    const normalizers = [
-      {to: '&', from: ['And']},
-      {to: '', from: ['Increasing', 'Becoming', 'Decreasing', 'Gradual', 'Patchy', 'Areas', 'Freezing']},
-      {to: 'Slight', from: ['Slight Chance', 'Chance', 'Isolated', 'Scattered']},
-      {to: 'Rain', from: ['Rain Showers', 'Spray', 'Rain Fog', 'Showers']},
-      {to: 'Snow', from: ['Snow Showers', 'Wintry Mix', 'Flurries']},
-      {to: 'Light ', from: ['Lt ']},
-      {to: 'Tstms ', from: ['Thunderstorms']}
-    ]
-    const normalize = _.memoize((description) => {
-      description = description.split('/')[0]
-      for (const {to, from} of normalizers)
-        for (const token of from)
-          description = description.replace(token, to)
-      return description
-        .split(/[^A-Za-z]/)
-        .reduce((msg, token) => (msg + ' ' + token).length <= msgLength ? (msg + ' ' + token) : msg.padEnd(msgLength, ' '))
-    })
-
+    const msgLength = Vestaboard.COLS - (3+4+1+1)
     const result = forecast
       .sortBy(row => row.date.valueOf())
       .slice(0, Vestaboard.ROWS)
       .map(row => {
-        const description = mode(row.descriptions.map(normalize))[0]
+        const description = mode(row.descriptions.map(Vestaboard.normalizeWeather))[0]
         let icon = _.findKey(iconToKeyword, kws => kws.some(kw => description.includes(kw)))
         if (row.date.isToday() && row.endHour === 23 && icon && icon !== '⬜️') icon = '⬛' // Show either Night or Snow in night
         return [
@@ -203,7 +203,7 @@ export class Vestaboard {
           description.padEnd(msgLength, ' ')
         ].join('')
       })
-    console.debug('Normalization', Object.fromEntries(normalize.cache))
+    console.debug('Normalization', Object.fromEntries(Vestaboard.normalizeWeather.cache))
 
     return this.write(result)
   }
