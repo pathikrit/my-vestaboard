@@ -6,8 +6,6 @@ import assert from 'node:assert'
 import { makeRetry } from './app.js'
 import Table from 'cli-table'
 
-Array.prototype.sortBy = function (arg) {return _.sortBy(this, arg)}
-Array.prototype.chunked = function (arg) {return _.chunk(this, arg)}
 Array.prototype.isDefinedAt = function (idx) {return _.inRange(idx, 0, this.length)}
 _.memoize.Cache = Map
 
@@ -117,10 +115,11 @@ export class Vestaboard {
   }
 
   debug = () => {
-    const chars = Object.entries(Vestaboard.charMap.getObject())
-      .sortBy(([letter, code]) => code)
+    const chars = _.chain(Object.entries(Vestaboard.charMap.getObject()))
+      .sortBy(([_, code]) => code)
       .flatMap(([letter, code]) => [letter, (code%10).toString()])
-      .chunked(Vestaboard.COLS)
+      .chunk(Vestaboard.COLS)
+      .value()
     return this.write(chars)
   }
 
@@ -182,7 +181,7 @@ export class Vestaboard {
       '🟦': ['Sleet', 'Spray', 'Rain', 'Shower', 'Spouts'],
       '⬜': ['Snow', 'Ice', 'Blizzard']
     }
-    const result = forecast
+    const result = _.chain(forecast)
       .sortBy(row => row.date.valueOf())
       .slice(0, Vestaboard.ROWS)
       .map(row => {
@@ -197,13 +196,14 @@ export class Vestaboard {
           description
         ].join('')
       })
+      .value()
     console.debug('Normalization', Object.fromEntries(Vestaboard.normalizeWeather.cache))
 
     return this.write(result)
   }
 
   tickerTape = (quotes) => {
-    let result = quotes
+    let result = _.chain(quotes)
       .sortBy(quote => Math.abs(quote.pctChange))
       .slice(0, 2*Vestaboard.ROWS)
       .sortBy(quote => quote.name)
@@ -216,6 +216,7 @@ export class Vestaboard {
           '%'
         ].join('')
       )
+      .value()
     result = _.zipWith(result.slice(0, Vestaboard.ROWS), result.slice(Vestaboard.ROWS).sort(), (l, r) => l + ' ' + r)
     return this.write(result)
   }
