@@ -13,7 +13,7 @@ export class Vestaboard {
   static ROWS = 6
   static COLS = 22
 
-  static charMap = new BiMap({
+  static charMap = new BiMap({ //TODO: Use https://github.com/sebbo2002/vestaboard/blob/develop/src/message.ts
     ' ': 0,
     'A': 1,
     'B': 2,
@@ -82,7 +82,7 @@ export class Vestaboard {
     '▮': 71
   })
 
-  constructor({rwKey}) {
+  constructor(rwKey) {
     this.api = axios.create({
       baseURL: 'https://rw.vestaboard.com',
       headers: {
@@ -99,12 +99,13 @@ export class Vestaboard {
 
   write = (msg) => {
     msg = msg.map(row => (_.isString(row) ? Array.from(row) : row).join('').toUpperCase())
-    console.log(msg)
+    console.debug(msg)
     msg = msg.map(row => Array.from(row))
     assert(msg.length === Vestaboard.ROWS && msg.every(row => row.length === Vestaboard.COLS), `Message must be ${Vestaboard.ROWS}x${Vestaboard.COLS} but is ${msg.length}x${msg.map(row => row.length)}`)
-    console.log(new Table({rows: msg}).toString())
     const payload = msg.map(row => row.map(c => Vestaboard.charMap.get(c) ?? Vestaboard.charMap.get('▮')))
-    return this.api.post('/', JSON.stringify(payload)).catch(error => Promise.reject(error.toJSON()))
+    return this.api.post('/', JSON.stringify(payload))
+        .then(_ => console.log(new Table({rows: msg}).toString()))
+        .catch(error => Promise.reject(error.toJSON()))
   }
 
   debug = () => {

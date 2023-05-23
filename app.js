@@ -78,7 +78,7 @@ makeRetry(axios)
 google.options({auth: google.auth.fromJSON(config.googleTasks.token)})
 
 const taskApi = google.tasks('v1')
-const board = new Vestaboard({rwKey: config.vestaBoardApiKey})
+const board = new Vestaboard(config.vestaBoardApiKey)
 const openai = new OpenAIApi(new OpenAIConfig({apiKey: config.openAiApiKey}))
 
 class Haiku {
