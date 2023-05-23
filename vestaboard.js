@@ -106,13 +106,13 @@ export class Vestaboard {
     const result = new Array(Vestaboard.ROWS).fill(Vestaboard.nul).map(() => new Array(Vestaboard.COLS).fill(Vestaboard.nul))
     for (let r = 0; r < Vestaboard.ROWS; r++)
       for (let c = 0; c < Vestaboard.COLS; c++)
-        result[r][c] = msg.isDefinedAt(r) && msg[r].isDefinedAt(c) ? msg[r][c] : background(r, c)
+        result[r][c] = msg.isDefinedAt(r) && msg[r].isDefinedAt(c) && msg[r][c] !== Vestaboard.nul ? msg[r][c] : background(r, c)
 
     console.debug(result.map(row => row.join('')))
 
-    const payload = msg.map(row => row.map(c => Vestaboard.charMap.get(c) ?? Vestaboard.charMap.get(Vestaboard.nul)))
+    const payload = result.map(row => row.map(c => Vestaboard.charMap.get(c) ?? Vestaboard.charMap.get(Vestaboard.nul)))
     return this.api.post('/', JSON.stringify(payload))
-        .then(_ => console.log(new Table({rows: msg}).toString()))
+        .then(_ => console.log(new Table({rows: result}).toString()))
         .catch(error => Promise.reject(error.toJSON()))
   }
 
