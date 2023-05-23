@@ -18,5 +18,11 @@
     "mathjs": "^11.8.0",
     "openai": "^3.2.1",
     "yahoo-finance2": "^2.4.1"
-  }
+  },
+  "engines": {
+    "npm": ">=8",
+    "yarn": ">=1",
+    "node": ">=18 <20"
+  },
+  "engineStrict": true
 }
