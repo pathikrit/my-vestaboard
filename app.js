@@ -112,8 +112,7 @@ const weather = (url) => axios.get(url)
     descriptions: entries.map(e => e.shortForecast)
   })))
 
-const quote = ({ticker, name}) => yahooFinance.quote(ticker)
-  .then(quote => Object.assign(quote, {name: name ?? ticker, pctChange: quote.regularMarketChangePercent}))
+const quote = ({ticker, name}) => yahooFinance.quote(ticker).then(quote => Object.assign(quote, {name: name ?? ticker}))
 
 const tasks = (maxDueDays) => {
   const fetchTaskList = (taskList) => taskApi.tasks
@@ -133,7 +132,7 @@ const tasks = (maxDueDays) => {
 const jobs = [
   () => weather(config.weather.url).then(board.renderWeather),
   () => Haiku.generate().then(board.writeHaiku),
-  () => Promise.all(config.tickers.map(quote)).then(board.tickerTape),
+  () => Promise.all(config.tickers.map(quote)).then(board.ticker1Cols),
   () => tasks(config.googleTasks.maxDueDays).then(board.renderTasks)
 ]
 const run = (jobId) => jobs[jobId]()

@@ -141,7 +141,7 @@ export class Vestaboard {
         assert(result.length <= Vestaboard.ROWS, `Too many lines in ${result}`)
       })
     const colors = _.sampleSize(['🟥', '🟧', '🟨', '🟩', '🟦', '🟪'], 2)
-    return this.write(result.value(), (r, c) => colors[(r+c)%2])
+    return this.write(result.value(), (r, c) => colors[(r+c)%colors.length])
   }
 
   static normalizeWeather = _.memoize((description) => {
@@ -191,13 +191,29 @@ export class Vestaboard {
     return this.write(result.value())
   }
 
-  tickerTape = (quotes) => {
+  ticker1Cols = (quotes) => {
+    const result = _.chain(quotes)
+      .sortBy(quote => Math.abs(quote.pctChange))
+      .slice(0, Vestaboard.ROWS)
+      .map(({name, regularMarketChangePercent: pctChange, regularMarketPrice: price}) =>
+        [
+          name.padEnd(5, ' '),
+          pctChange < 0 ? '🟥' : '🟩',
+          pctChange.toFixed(2).padStart(6, ' '),
+          '% ',
+          ('$' + price.toFixed(price < 10000 ? 2 : 0)).padStart(Vestaboard.COLS-(5+1+6+2), ' ')
+        ].join('')
+      )
+    return this.write(result.value())
+  }
+
+  ticker2Cols = (quotes) => {
     const result = _.chain(quotes)
       .sortBy(quote => Math.abs(quote.pctChange))
       .slice(0, 2 * Vestaboard.ROWS)
       .sortBy(quote => quote.name)
       .sortBy(quote => quote.name.length > 4) // Makes sure 5 letter tickers are on the right column
-      .map(({name, pctChange}, idx) =>
+      .map(({name, regularMarketChangePercent: pctChange}, idx) =>
         [
           name.padEnd(idx < Vestaboard.ROWS ? 4 : 5, ' '),
           pctChange < 0 ? '🟥' : '🟩',
