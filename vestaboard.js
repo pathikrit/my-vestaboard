@@ -108,7 +108,7 @@ export class Vestaboard {
     console.debug(result.map(row => row.join('')))
 
     const payload = result.map(row => row.map(c => Vestaboard.charMap.get(c) ?? Vestaboard.charMap.get(Vestaboard.nul)))
-    return this.api.post('/', JSON.stringify(payload)).then(_ => console.log(new Table({rows: result}).toString()))
+    return this.api.post('/', JSON.stringify(payload)).then(_ => new Table({rows: result}).toString())
   }
 
   debug = () => {

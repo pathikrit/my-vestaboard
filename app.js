@@ -146,6 +146,7 @@ const jobs = [
   () => tasks(config.googleTasks.maxDueDays).then(board.renderTasks)
 ]
 const run = (jobId) => jobs[jobId]()
+  .then(res => console.log(res))
   .catch(err => console.error(err))
   .finally(() => setTimeout(run, config.jobIntervalMinutes * 60 * 1000, (jobId + 1)%jobs.length))
 
