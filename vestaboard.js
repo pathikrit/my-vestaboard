@@ -123,13 +123,7 @@ export class Vestaboard {
   }
 
   writeHaiku = (haiku) => {
-    const rainbow = ['🟥', '🟧', '🟨', '🟩', '🟦', '🟪']
-    const r = () => _.random(rainbow.length-1)
-    let b1 = r(), b2 = r()
-    while (b2 === b1) b2 = r()
-
-    const result = haiku
-      .split('\n')
+    const result = _.chain(haiku.split('\n'))
       .map(line => line.trim())
       .filter(line => line.length > 0)
       .flatMap(line => {
@@ -142,11 +136,12 @@ export class Vestaboard {
       })
       .map(line => line.trim())
       .map(line => Vestaboard.nul.repeat(Math.max(Vestaboard.COLS - line.length, 0)/2) + line)
-    if (result.length <= 4) result.unshift(Vestaboard.nul)
-
-    assert(result.length <= Vestaboard.ROWS, `Too many lines in ${result}`)
-
-    return this.write(result, (r, c) => (r+c)%2 === 0 ? rainbow[b1] : rainbow[b2])
+      .tap(result => {
+        if (result.length <= 4) result.unshift(Vestaboard.nul)
+        assert(result.length <= Vestaboard.ROWS, `Too many lines in ${result}`)
+      })
+    const colors = _.sampleSize(['🟥', '🟧', '🟨', '🟩', '🟦', '🟪'], 2)
+    return this.write(result.value(), (r, c) => colors[(r+c)%2])
   }
 
   static normalizeWeather = _.memoize((description) => {
@@ -186,7 +181,7 @@ export class Vestaboard {
         return [
           row.date.format('ddd'),
           row.temperature.toString().padStart(4, ' '),
-          icon ?? '?',
+          icon ?? Vestaboard.nul,
           ' ',
           description
         ].join('')
