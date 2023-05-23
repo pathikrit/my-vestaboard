@@ -64,7 +64,7 @@ const config = {
     {ticker: 'ADBE'},
     {ticker: 'SNOW'}
   ],
-  jobIntervalMinutes: 60, //TODO: change to 15
+  jobIntervalMinutes: 15,
   retryIntervalMinutes: [1, 2, 3, 4]
 }
 assert(_.sum(config.retryIntervalMinutes) < config.jobIntervalMinutes, 'Retries must finish within job gap')
