@@ -80,8 +80,8 @@ export class Vestaboard {
     '🟩': 66,
     '🟦': 67,
     '🟪': 68,
-    '⬜️': 69,
-    '⬛️': 70,
+    '⬜': 69,
+    '⬛': 70,
     '␀': 71
   })
 
@@ -178,9 +178,9 @@ export class Vestaboard {
       '🟧': ['Sunny', 'Clear', 'Fair'],
       '🟩': ['Windy', 'Breezy', 'Blustery'],
       '🟪': ['Frost', 'Cold'],
-      '⬛': ['Cloud', 'Haze', 'Overcast', 'Fog', 'Smoke', 'Ash', 'Dust', 'Sand', 'Tstms'],
+      '⬛️': ['Cloud', 'Haze', 'Overcast', 'Fog', 'Smoke', 'Ash', 'Dust', 'Sand', 'Tstms'],
       '🟦': ['Sleet', 'Spray', 'Rain', 'Shower', 'Spouts'],
-      '⬜️': ['Snow', 'Ice', 'Blizzard']
+      '⬜': ['Snow', 'Ice', 'Blizzard']
     }
     const result = forecast
       .sortBy(row => row.date.valueOf())
@@ -188,7 +188,7 @@ export class Vestaboard {
       .map(row => {
         const description = mode(row.descriptions.map(Vestaboard.normalizeWeather))[0]
         let icon = _.findKey(iconToKeyword, kws => kws.some(kw => description.includes(kw)))
-        if (row.date.isToday() && row.endHour === 23 && icon && icon !== '⬜️') icon = '⬛' // Show either Night or Snow in night
+        if (row.date.isToday() && row.endHour === 23 && icon && icon !== '⬜') icon = '⬛️' // Show either Night or Snow in night
         return [
           row.date.format('ddd'),
           row.temperature.toString().padStart(4, ' '),
