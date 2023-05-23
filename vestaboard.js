@@ -1,9 +1,9 @@
 import BiMap from 'bidirectional-map'
 import axios from 'axios'
-import { mode } from 'mathjs'
+import {mode} from 'mathjs'
 import _ from 'lodash'
 import assert from 'node:assert'
-import { makeRetry } from './app.js'
+import {makeRetry} from './app.js'
 import Table from 'cli-table'
 
 Array.prototype.isDefinedAt = function (idx) {return _.inRange(idx, 0, this.length)}
@@ -110,8 +110,8 @@ export class Vestaboard {
 
     const payload = result.map(row => row.map(c => Vestaboard.charMap.get(c) ?? Vestaboard.charMap.get(Vestaboard.nul)))
     return this.api.post('/', JSON.stringify(payload))
-        .then(_ => console.log(new Table({rows: result}).toString()))
-        .catch(error => Promise.reject(error.toJSON()))
+      .then(_ => console.log(new Table({rows: result}).toString()))
+      .catch(error => Promise.reject(error.toJSON()))
   }
 
   debug = () => {
@@ -127,7 +127,7 @@ export class Vestaboard {
     const rainbow = ['🟥', '🟧', '🟨', '🟩', '🟦', '🟪']
     const r = () => _.random(rainbow.length-1)
     let b1 = r(), b2 = r()
-    while (b2 === b1) b2 =  r()
+    while (b2 === b1) b2 = r()
 
     const result = haiku
       .split('\n')
@@ -196,16 +196,15 @@ export class Vestaboard {
           description
         ].join('')
       })
-      .value()
-    console.debug('Normalization', Object.fromEntries(Vestaboard.normalizeWeather.cache))
+      .tap(_ => console.debug('Normalization', Object.fromEntries(Vestaboard.normalizeWeather.cache)))
 
-    return this.write(result)
+    return this.write(result.value())
   }
 
   tickerTape = (quotes) => {
     const result = _.chain(quotes)
       .sortBy(quote => Math.abs(quote.pctChange))
-      .slice(0, 2*Vestaboard.ROWS)
+      .slice(0, 2 * Vestaboard.ROWS)
       .sortBy(quote => quote.name)
       .sortBy(quote => quote.name.length > 4) // Makes sure 5 letter tickers are on the right column
       .map(({name, pctChange}, idx) =>
@@ -228,7 +227,7 @@ export class Vestaboard {
       if (taskList.includes('Rick')) return '⬛'
     }
     const result = _.chain(tasks)
-      .map(task => Object.assign(task, {icon: icon(task.taskList)}))
+      .map(task => _.set(task, icon, icon(task.taskList)))
       .filter(task => task.icon)
       .sampleSize(Vestaboard.ROWS)
       .map(({icon, title}) => icon + title)

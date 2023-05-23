@@ -1,20 +1,21 @@
-import { Vestaboard } from './vestaboard.js'
+import {Vestaboard} from './vestaboard.js'
 import 'core-js/actual/array/group.js'
 import axios from 'axios'
 import axiosRetry, {isNetworkOrIdempotentRequestError} from 'axios-retry'
 import _ from 'lodash'
-import { mean } from 'mathjs'
+import {mean} from 'mathjs'
 import dayjs from 'dayjs-with-plugins'
 import yahooFinance from 'yahoo-finance2'
-import { google } from 'googleapis'
-import { Configuration as OpenAIConfig, OpenAIApi, ChatCompletionRequestMessageRoleEnum as Role } from 'openai'
+import {google} from 'googleapis'
+import {Configuration as OpenAIConfig, OpenAIApi, ChatCompletionRequestMessageRoleEnum as Role} from 'openai'
 import assert from 'node:assert'
 import dotenv from 'dotenv'
+
 dotenv.config()
 
 process.env.TZ = 'America/New_York'
 const config = {
-  chatApiParams: { model: 'gpt-3.5-turbo' }, // See https://platform.openai.com/docs/api-reference/chat/create
+  chatApiParams: {model: 'gpt-3.5-turbo'}, // See https://platform.openai.com/docs/api-reference/chat/create
   openAiApiKey: process.env.OPENAI_API_KEY,
   vestaBoardApiKey: process.env.VESTABOARD_READ_WRITE_KEY,
   weather: {
@@ -71,7 +72,7 @@ assert(_.sum(config.retryIntervalMinutes) < config.jobIntervalMinutes, 'Retries 
 
 export const makeRetry = (client) => axiosRetry(client, {
   retries: config.retryIntervalMinutes.length,
-  retryDelay: (retryCount) =>  config.retryIntervalMinutes[retryCount] * 60 * 1000,
+  retryDelay: (retryCount) => config.retryIntervalMinutes[retryCount] * 60 * 1000,
   retryCondition: (error) => isNetworkOrIdempotentRequestError(error) || error?.response?.status >= 400,
   onRetry: (retryCount, error) => console.warn(`Retrying web call (${retryCount} retries)`, error.toJSON())
 })
