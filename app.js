@@ -53,13 +53,15 @@ const config = {
     {ticker: 'TSLA'},
     {ticker: 'META', name: 'FB'},
     {ticker: 'AMZN'},
-    {ticker: 'GOOGL', name: 'GOOG'},
+    {ticker: 'GOOGL'},
     {ticker: 'BTC-USD', name: 'BTC'},
     {ticker: '^GSPC', name: 'SP500'},
     {ticker: '^TYX', name: 'UST30'},
     {ticker: 'TSM', name: 'TSMC'},
     {ticker: 'BAC', name: 'BOFA'},
     {ticker: 'BABA'},
+    {ticker: 'NFLX'},
+    {ticker: 'ADBE'},
     {ticker: 'SNOW'}
   ],
   jobIntervalMinutes: 60, //TODO: change to 15
@@ -137,4 +139,4 @@ const run = (jobId) => jobs[jobId]()
   .catch(err => console.error(err))
   .finally(() => setTimeout(run, config.jobIntervalMinutes * 60 * 1000, (jobId + 1)%jobs.length))
 
-run(0) //Yolo!
+run(2) //Yolo!
