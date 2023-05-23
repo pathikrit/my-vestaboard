@@ -203,7 +203,7 @@ export class Vestaboard {
   }
 
   tickerTape = (quotes) => {
-    let result = _.chain(quotes)
+    const result = _.chain(quotes)
       .sortBy(quote => Math.abs(quote.pctChange))
       .slice(0, 2*Vestaboard.ROWS)
       .sortBy(quote => quote.name)
@@ -216,9 +216,8 @@ export class Vestaboard {
           '%'
         ].join('')
       )
-      .value()
-    result = _.zipWith(result.slice(0, Vestaboard.ROWS), result.slice(Vestaboard.ROWS).sort(), (l, r) => l + ' ' + r)
-    return this.write(result)
+      .thru(result => _.zipWith(result.slice(0, Vestaboard.ROWS), result.slice(Vestaboard.ROWS).sort(), (l, r) => l + ' ' + r))
+    return this.write(result.value())
   }
 
   renderTasks = (tasks) => {
@@ -228,11 +227,11 @@ export class Vestaboard {
       if (taskList.includes('Nastya')) return '🟪'
       if (taskList.includes('Rick')) return '⬛'
     }
-    const result = _.shuffle(tasks)
+    const result = _.chain(tasks)
       .map(task => Object.assign(task, {icon: icon(task.taskList)}))
       .filter(task => task.icon)
-      .slice(0, Vestaboard.ROWS)
+      .sampleSize(Vestaboard.ROWS)
       .map(({icon, title}) => icon + title)
-    return this.write(result)
+    return this.write(result.value())
   }
 }
