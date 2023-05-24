@@ -71,10 +71,8 @@ const config = {
     {ticker: 'ADBE'},
     {ticker: 'SNOW'}
   ],
-  jobIntervalMinutes: 15,
-  retryIntervalMinutes: [1, 2, 3, 4]
+  retryIntervalMinutes: [1, 1, 1, 1]
 }
-assert(_.sum(config.retryIntervalMinutes) < config.jobIntervalMinutes, 'Retries must finish within job gap')
 
 export const makeRetry = (client) => {
   client.interceptors.request.use(req => {
@@ -138,24 +136,31 @@ const tasks = (maxDueDays) => {
 
 const jobs = {
   weather: {
+    displayFor: 5,
     run: () => weather(config.weather.url).then(board.renderWeather)
   },
   haiku: {
+    displayFor: 10,
     run: () => haiku(config.haikuPrompt()).then(board.writeHaiku),
-    check: (date) => ![3,4,5,6].includes(date.hour()) // Skip haikus between 3am and 6am
+    check: (date) => !_.inRange(date.hour(), 2, 7) // Skip haikus between 2am and 7am
   },
   stocks: {
+    displayFor: 5,
     run: () => Promise.all(config.tickers.map(fetchTickerData)).then(board.tickerTape),
-    check: (date) => _.inRange(date.hour(), 9, 16) && _.inRange(date.day(), 1, 6) //Weekday 9 to 5
+    check: (date) => _.inRange(date.hour(), 9, 16) && _.inRange(date.day(), 1, 6) //Weekdays, 9am to 5pm
   },
   tasks: {
+    displayFor: 5,
     run: () => tasks(config.googleTasks.maxDueDays).then(board.renderTasks)
   },
   quotes: {
+    displayFor: 5,
     run: () => board.displayQuotes(quotes.parse_json()),
     check: (date) => !jobs.stocks.check(date)
   }
 }
+
+assert(_.sum(config.retryIntervalMinutes) < _.min(Object.values(jobs).map(job => job.displayFor)), 'Retries must finish within job gap')
 
 const run = (current) => _.chain(Object.entries(jobs))
   .filter(([id, job]) => id !== current && (!job.check || job.check(dayjs())))
@@ -163,7 +168,7 @@ const run = (current) => _.chain(Object.entries(jobs))
   .thru(([id, job]) => job.run()
     .then(res => console.log(res))
     .catch(err => console.error(err))
-    .finally(() => setTimeout(run, config.jobIntervalMinutes * 60 * 1000, id))
+    .finally(() => setTimeout(run, job.displayFor * 60 * 1000, id))
   )
   .value()
 
