@@ -200,13 +200,14 @@ export class Vestaboard {
   ticker1Cols = (quotes) => {
     const result = quotes
       .slice(0, Vestaboard.ROWS)
-      .map(({name, regularMarketChangePercent: pctChange, regularMarketPrice: price}) =>
+      .map(quote => _.set(quote, 'price', (quote.regularMarketPrice < 10000 ? quote.regularMarketPrice.toFixed(2) : quote.regularMarketPrice.toLocaleString('en-US', {maximumFractionDigits: 0}))))
+      .map(({name, regularMarketChangePercent: pctChange, price}) =>
         [
           name.padEnd(5, ' '),
           pctChange < 0 ? '🟥' : '🟩',
           pctChange.toFixed(2).padStart(6, ' '),
           '% ',
-          ('$' + price.toFixed(price < 10000 ? 2 : 0)).padStart(Vestaboard.COLS-(5+1+6+2), ' ')
+          ('$' + price).padStart(Vestaboard.COLS-(5+1+6+2), ' ')
         ].join('')
       )
     return this.write(result.value())
