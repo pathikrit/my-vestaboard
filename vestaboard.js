@@ -248,7 +248,17 @@ export class Vestaboard {
       .map(quote => Object.assign(quote, {lines: wrap(quote.text, {width: Vestaboard.COLS-2}).split('\n').map(line => line.trim())}))
       .filter(({author, lines}) => lines.length < Vestaboard.ROWS && (author.length+2) < Vestaboard.COLS-2)
       .sample()
-      .thru(({author, lines}) => lines.concat(['- ' + author]).map(Vestaboard.center))
+      .thru(({author, lines}) => {
+        const z = Vestaboard.nul, a = '- ' + author
+        switch (lines.length) {
+          case 1: return [z, ...lines, z, z, a, z]
+          case 2: return [z, ...lines, z, a, z]
+          case 3: return [...lines, z, a, z]
+          case 4: return [...lines, z, a]
+          case 5: return [...lines, a]
+        }
+      })
+      .thru(lines => lines.map(Vestaboard.center))
     const colors = _.sampleSize(['🟥', '🟧', '🟨', '🟩', '🟦', '🟪'], 2)
     return this.write(result.value(), (r, c) => _.inRange(c, 1, Vestaboard.COLS-1) ? ' ' : colors[(r+c)%colors.length])
   }

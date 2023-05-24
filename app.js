@@ -152,7 +152,8 @@ const jobs = {
     run: () => tasks(config.googleTasks.maxDueDays).then(board.renderTasks)
   },
   quotes: {
-    run: () => board.displayQuotes(quotes.parse_json())
+    run: () => board.displayQuotes(quotes.parse_json()),
+    check: (date) => !jobs.stocks.check(date)
   }
 }
 
@@ -166,7 +167,4 @@ const run = (current) => _.chain(Object.entries(jobs))
   )
   .value()
 
-//run()
-
-
-jobs.quotes.run()
+run()
