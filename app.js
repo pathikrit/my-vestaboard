@@ -26,8 +26,8 @@ const config = {
     url: 'https://api.weather.gov/gridpoints/OKX/34,45/forecast/hourly', // Get this from https://api.weather.gov/points/40.9375,-73.9477
     dayTime: {start: 10, end: 17} // We only care about weather between 10am and 5pm
   },
-  haikuPrompts: {
-    regular: [
+  haikuPrompt: () => {
+    const regular = [
       {birthday: '21-Mar', prompt: "Write a haiku about a cute baby boy named Aidan. He loves his mom, his pet cat Tigri and red Pontiac Solstice. He calls cute things 'baa' and cool things 'boo' and calls his dad 'da-da'."},
       {birthday: '21-Mar', prompt: "Write a haiku about a beautiful Bengal cat called Tigri. She likes to purr on us while we sleep, bask in the sun, eat tuna and roll on her belly to get whipped."},
       {birthday: '5-Feb' , prompt: "Write a haiku about a beautiful woman named Nastassia. She likes to play with her little boy, Aidan and sleep with her husband."},
@@ -35,13 +35,14 @@ const config = {
       const suffix = dayjs().format('DD-MMM') === birthday ? 'Today is their birthday!' :
         "You don't have to use all this information - just giving helpful tips."
       return [prompt, suffix, 'Just respond with the haiku and nothing else.'].join(' ')
-    }),
-    special: {
+    })
+    const special = {
       '14-Feb': "Today is Valentine's Day. Write a Haiku about a beautiful woman named Nastassia who loves her husband, Rick.",
       '8-Mar': "Today is Woman's Day. Write a Haiku about a beautiful woman named Nastassia.",
       '29-Aug': "Today is marriage anniversary of Rick and Nastassia. Write a haiku about them.",
       '21-Dec': "Today is wedding anniversary of Rick and Nastassia. Write a haiku about them."
     }
+    return special[dayjs().format('DD-MMM')] ?? _.sample(regular)
   },
   googleTasks: {
     token: { // see https://developers.google.com/tasks/quickstart/nodejs
@@ -95,13 +96,9 @@ const taskApi = google.tasks('v1')
 const board = new Vestaboard(config.vestaBoardApiKey)
 const openai = new OpenAIApi(new OpenAIConfig({apiKey: config.openAiApiKey}))
 
-class Haiku {
-  static idx = 0
-  static nextPrompt = () => config.haikuPrompts.special[dayjs().format('DD-MMM')] ?? config.haikuPrompts.regular[(Haiku.idx = (Haiku.idx + 1)%(config.haikuPrompts.regular.length))]
-  static generate = (prompt = Haiku.nextPrompt()) => openai
-    .createChatCompletion(Object.assign(config.chatApiParams, {messages: [{role: Role.User, content: prompt}]}))
-    .then(res => res.data.choices[0].message.content)
-}
+const haiku = (prompt) => openai
+  .createChatCompletion(Object.assign(config.chatApiParams, {messages: [{role: Role.User, content: prompt}]}))
+  .then(res => res.data.choices[0].message.content)
 
 const weather = (url) => axios.get(url)
   .then(res => res.data.properties.periods)
@@ -141,7 +138,7 @@ const tasks = (maxDueDays) => {
 
 const jobs = [
   () => weather(config.weather.url).then(board.renderWeather),
-  () => Haiku.generate().then(board.writeHaiku),
+  () => haiku(config.haikuPrompt()).then(board.writeHaiku),
   () => Promise.all(config.tickers.map(quote)).then(board.tickerTape),
   () => tasks(config.googleTasks.maxDueDays).then(board.renderTasks)
 ]
