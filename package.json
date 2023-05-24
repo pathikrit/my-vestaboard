@@ -17,6 +17,8 @@
     "lodash": "^4.17.21",
     "mathjs": "^11.8.0",
     "openai": "^3.2.1",
+    "quotesy": "^1.0.9",
+    "word-wrap": "^1.2.3",
     "yahoo-finance2": "^2.4.1"
   },
   "engines": {

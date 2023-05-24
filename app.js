@@ -10,6 +10,7 @@ import {google} from 'googleapis'
 import {Configuration as OpenAIConfig, OpenAIApi, ChatCompletionRequestMessageRoleEnum as Role} from 'openai'
 import assert from 'node:assert'
 import dotenv from 'dotenv'
+import quotes from 'quotesy'
 
 dotenv.config()
 
@@ -118,7 +119,7 @@ const weather = (url) => axios.get(url)
     descriptions: entries.map(e => e.shortForecast)
   })))
 
-const quote = ({ticker, name}) => yahooFinance.quote(ticker).then(quote => Object.assign(quote, {name: name ?? ticker}))
+const fetchTickerData = ({ticker, name}) => yahooFinance.quote(ticker).then(quote => Object.assign(quote, {name: name ?? ticker}))
 
 const tasks = (maxDueDays) => {
   const fetchTaskList = (taskList) => taskApi.tasks
@@ -144,11 +145,14 @@ const jobs = {
     check: (date) => ![3,4,5,6].includes(date.hour()) // Skip haikus between 3am and 6am
   },
   stocks: {
-    run: () => Promise.all(config.tickers.map(quote)).then(board.tickerTape),
+    run: () => Promise.all(config.tickers.map(fetchTickerData)).then(board.tickerTape),
     check: (date) => _.inRange(date.hour(), 9, 16) && _.inRange(date.day(), 1, 6) //Weekday 9 to 5
   },
   tasks: {
     run: () => tasks(config.googleTasks.maxDueDays).then(board.renderTasks)
+  },
+  quotes: {
+    run: () => board.displayQuotes(quotes.parse_json())
   }
 }
 
@@ -162,4 +166,7 @@ const run = (current) => _.chain(Object.entries(jobs))
   )
   .value()
 
-run()
+//run()
+
+
+jobs.quotes.run()

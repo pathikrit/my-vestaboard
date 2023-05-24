@@ -5,6 +5,7 @@ import _ from 'lodash'
 import assert from 'node:assert'
 import {makeRetry} from './app.js'
 import Table from 'cli-table'
+import wrap from 'word-wrap'
 
 _.memoize.Cache = Map
 
@@ -120,6 +121,8 @@ export class Vestaboard {
     return this.write(chars)
   }
 
+  static center = (line) => Vestaboard.nul.repeat(Math.max(Vestaboard.COLS - line.length, 0)/2) + line
+
   writeHaiku = (haiku) => {
     const result = _.chain(haiku.split('\n'))
       .map(line => line.trim())
@@ -133,7 +136,7 @@ export class Vestaboard {
         return [line.substring(0, breakIdx+1), line.substring(breakIdx+1)]
       })
       .map(line => line.trim())
-      .map(line => Vestaboard.nul.repeat(Math.max(Vestaboard.COLS - line.length, 0)/2) + line)
+      .map(Vestaboard.center)
       .tap(result => {
         if (result.length <= 4) result.unshift(Vestaboard.nul)
         assert(result.length <= Vestaboard.ROWS, `Too many lines in ${result}`)
@@ -238,5 +241,15 @@ export class Vestaboard {
       .sampleSize(Vestaboard.ROWS)
       .map(({icon, title}) => icon + title)
     return this.write(result.value())
+  }
+
+  displayQuotes = (quotes) => {
+    const result = _.chain(quotes)
+      .map(quote => Object.assign(quote, {lines: wrap(quote.text, {width: Vestaboard.COLS-2}).split('\n').map(line => line.trim())}))
+      .filter(({author, lines}) => lines.length < Vestaboard.ROWS && (author.length+2) < Vestaboard.COLS-2)
+      .sample()
+      .thru(({author, lines}) => lines.concat(['- ' + author]).map(Vestaboard.center))
+    const colors = _.sampleSize(['🟥', '🟧', '🟨', '🟩', '🟦', '🟪'], 2)
+    return this.write(result.value(), (r, c) => _.inRange(c, 1, Vestaboard.COLS-1) ? ' ' : colors[(r+c)%colors.length])
   }
 }
