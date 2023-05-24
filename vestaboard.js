@@ -132,7 +132,7 @@ export class Vestaboard {
         if (line.length <= Vestaboard.COLS - 2) return [line]
         let breakIdx = line.indexOf(', ')
         if (breakIdx < 0) breakIdx = line.indexOf(' ', Vestaboard.COLS/2)
-        assert(breakIdx >= 0, `Could not split LINE=[${line}]`)
+        assert(breakIdx > 1, `Could not split LINE=[${line}]`)
         return [line.substring(0, breakIdx+1), line.substring(breakIdx+1)]
       })
       .map(line => line.trim())
@@ -249,13 +249,13 @@ export class Vestaboard {
       .filter(({author, lines}) => lines.length < Vestaboard.ROWS && (author.length+2) < Vestaboard.COLS-2)
       .sample()
       .thru(({author, lines}) => {
-        const z = Vestaboard.nul, a = '- ' + author
+        const z = Vestaboard.nul, attr = '- ' + author
         switch (lines.length) {
-          case 1: return [z, ...lines, z, z, a, z]
-          case 2: return [z, ...lines, z, a, z]
-          case 3: return [...lines, z, a, z]
-          case 4: return [...lines, z, a]
-          case 5: return [...lines, a]
+          case 1: return [z, ...lines, z, z, attr, z]
+          case 2: return [z, ...lines, z, attr, z]
+          case 3: return [...lines, z, attr, z]
+          case 4: return [...lines, z, attr]
+          case 5: return [...lines, attr]
         }
       })
       .thru(lines => lines.map(Vestaboard.center))

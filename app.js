@@ -24,14 +24,14 @@ const config = {
   openAiApiKey: process.env.OPENAI_API_KEY,
   vestaBoardApiKey: process.env.VESTABOARD_READ_WRITE_KEY,
   weather: {
-    url: 'https://api.weather.gov/gridpoints/OKX/34,45/forecast/hourly', // Get this from https://api.weather.gov/points/40.9375,-73.9477
+    url: 'https://api.weather.gov/gridpoints/OKX/34,46/forecast/hourly', // Get this from https://api.weather.gov/points/40.9398,-73.9449
     dayTime: {start: 10, end: 17} // We only care about weather between 10am and 5pm
   },
   haikuPrompt: () => {
     const regular = [
-      {birthday: '21-Mar', prompt: "Write a haiku about a cute baby boy named Aidan. He loves his mom, his pet cat Tigri and red Pontiac Solstice. He calls cute things 'baa' and cool things 'boo' and calls his dad 'da-da'."},
+      {birthday: '21-Mar', prompt: "Write a haiku about a cute baby boy named Aidan. He loves his mom, his pet cat Tigri and his red mini Pontiac Solstice. He calls cute things 'baa' and cool things 'boo' and calls his dad 'da-da'."},
       {birthday: '21-Mar', prompt: "Write a haiku about a beautiful Bengal cat called Tigri. She likes to purr on us while we sleep, bask in the sun, eat tuna and roll on her belly to get whipped."},
-      {birthday: '5-Feb' , prompt: "Write a haiku about a beautiful woman named Nastassia. She likes to play with her little boy, Aidan and sleep with her husband."},
+      {birthday: '5-Feb' , prompt: "Write a haiku about a beautiful woman named Nastenka. She likes to play with her little boy, Aidan and sleep with her husband, Rick."},
     ].map(({birthday, prompt}) => {
       const suffix = dayjs().format('DD-MMM') === birthday ? 'Today is their birthday!' :
         "You don't have to use all this information - just giving helpful tips."
