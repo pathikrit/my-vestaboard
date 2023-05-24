@@ -192,11 +192,13 @@ export class Vestaboard {
     return this.write(result.value())
   }
 
-  tickerTape = (quotes) => _.sample([this.ticker1Cols, this.ticker2Cols])(quotes)
+  tickerTape = (quotes) => {
+    const f = _.sample([this.ticker1Cols, this.ticker2Cols])
+    return f(_.chain(quotes).sortBy(quote => -Math.abs(quote.regularMarketChangePercent)))
+  }
 
   ticker1Cols = (quotes) => {
-    const result = _.chain(quotes)
-      .sortBy(quote => Math.abs(quote.pctChange))
+    const result = quotes
       .slice(0, Vestaboard.ROWS)
       .map(({name, regularMarketChangePercent: pctChange, regularMarketPrice: price}) =>
         [
@@ -211,8 +213,7 @@ export class Vestaboard {
   }
 
   ticker2Cols = (quotes) => {
-    const result = _.chain(quotes)
-      .sortBy(quote => Math.abs(quote.pctChange))
+    const result = quotes
       .slice(0, 2 * Vestaboard.ROWS)
       .sortBy(quote => quote.name)
       .sortBy(quote => quote.name.length > 4) // Makes sure 5 letter tickers are on the right column

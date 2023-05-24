@@ -172,4 +172,5 @@ const run = (current) => _.chain(Object.entries(jobs))
   )
   .value()
 
+//jobs.stocks.run()
 run()
