@@ -229,8 +229,8 @@ export class Vestaboard {
     const icon = (taskList) => {
       if (taskList.includes('Aidan')) return '🟦'
       if (taskList.includes('Home')) return '🟩'
-      if (taskList.includes('Nastya')) return '🟪'
-      if (taskList.includes('Rick')) return '⬛'
+      if (taskList.includes('Nastya')) return '🟨'
+      if (taskList.includes('Rick')) return '🟪'
     }
     const result = _.chain(tasks)
       .map(task => Object.assign(task, {icon: icon(task.taskList)}))

@@ -1,7 +1,7 @@
 import {Vestaboard} from './vestaboard.js'
 import 'core-js/actual/array/group.js'
 import axios from 'axios'
-import axiosRetry, {isNetworkOrIdempotentRequestError} from 'axios-retry'
+import axiosRetry from 'axios-retry'
 import _ from 'lodash'
 import {mean} from 'mathjs'
 import dayjs from 'dayjs-with-plugins'
@@ -84,7 +84,6 @@ export const makeRetry = (client) => {
   axiosRetry(client, {
     retries: config.retryIntervalMinutes.length,
     retryDelay: (retryCount) => config.retryIntervalMinutes[retryCount] * 60 * 1000,
-    retryCondition: (error) => isNetworkOrIdempotentRequestError(error) || error?.response?.status >= 400,
     onRetry: (retryCount, error) => console.warn(`Retrying web call (${retryCount} retries)`, error.toJSON())
   })
 }
