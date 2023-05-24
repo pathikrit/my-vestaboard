@@ -135,15 +135,31 @@ const tasks = (maxDueDays) => {
     .then(tasks => tasks.flat())
 }
 
-const jobs = [
-  () => weather(config.weather.url).then(board.renderWeather),
-  () => haiku(config.haikuPrompt()).then(board.writeHaiku),
-  () => Promise.all(config.tickers.map(quote)).then(board.tickerTape),
-  () => tasks(config.googleTasks.maxDueDays).then(board.renderTasks)
-]
-const run = (jobId) => jobs[jobId]()
-  .then(res => console.log(res))
-  .catch(err => console.error(err))
-  .finally(() => setTimeout(run, config.jobIntervalMinutes * 60 * 1000, (jobId + 1)%jobs.length))
+const jobs = {
+  weather: {
+    run: () => weather(config.weather.url).then(board.renderWeather)
+  },
+  haiku: {
+    run: () => haiku(config.haikuPrompt()).then(board.writeHaiku),
+    check: (date) => ![3,4,5,6].includes(date.hour()) // Skip haikus between 3am and 6am
+  },
+  stocks: {
+    run: () => Promise.all(config.tickers.map(quote)).then(board.tickerTape),
+    check: (date) => _.inRange(date.hour(), 9, 16) && _.inRange(date.day(), 1, 6) //Weekday 9 to 5
+  },
+  tasks: {
+    run: () => tasks(config.googleTasks.maxDueDays).then(board.renderTasks)
+  }
+}
 
-run(0) //Yolo!
+const run = (current) => _.chain(Object.entries(jobs))
+  .filter(([id, job]) => id !== current && (!job.check || job.check(dayjs())))
+  .sample()
+  .thru(([id, job]) => job.run()
+    .then(res => console.log(res))
+    .catch(err => console.error(err))
+    .finally(() => setTimeout(run, config.jobIntervalMinutes * 60 * 1000, id))
+  )
+  .value()
+
+run()
