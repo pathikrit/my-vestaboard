@@ -233,7 +233,7 @@ export class Vestaboard {
       if (taskList.includes('Rick')) return '⬛'
     }
     const result = _.chain(tasks)
-      .map(task => _.set(task, icon, icon(task.taskList)))
+      .map(task => Object.assign(task, {icon: icon(task.taskList)}))
       .filter(task => task.icon)
       .sampleSize(Vestaboard.ROWS)
       .map(({icon, title}) => icon + title)
