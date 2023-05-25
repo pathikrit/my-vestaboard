@@ -75,10 +75,9 @@ const config = {
 }
 
 export const makeRetry = (client) => {
-  client.interceptors.request.use(req => {
+  client.interceptors.request.use((req) => {
     req.method = req.method.toUpperCase()
-    if (!env.isProd && req.method !== 'GET') return Promise.reject(`${req.method} ${req.url} BLOCKED (cannot make non-GET call from non-prod env)`)
-    return req
+    return (!env.isProd && req.method !== 'GET') ? Promise.reject(`${req.method} ${req.baseURL + req.url} BLOCKED (cannot make non-GET call from non-prod env)`) : req
   }, (error) => Promise.reject(error.toJSON()))
   axiosRetry(client, {
     retries: config.retryIntervalMinutes.length,
@@ -161,6 +160,7 @@ const jobs = {
 }
 
 assert(_.sum(config.retryIntervalMinutes) < _.min(Object.values(jobs).map(job => job.displayFor)), 'Retries must finish within job gap')
+assert(Object.values(jobs).some(job => !job.check), 'Must be atleast one job without a checker!')
 
 const run = (current) => _.chain(Object.entries(jobs))
   .filter(([id, job]) => id !== current && (!job.check || job.check(dayjs())))

@@ -216,7 +216,6 @@ export class Vestaboard {
   ticker2Cols = (quotes) => {
     const result = quotes
       .slice(0, 2 * Vestaboard.ROWS)
-      .sortBy(quote => quote.name)
       .sortBy(quote => quote.name.length > 4) // Makes sure 5 letter tickers are on the right column
       .map(({name, regularMarketChangePercent: pctChange}, idx) =>
         [
