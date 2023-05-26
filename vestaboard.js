@@ -240,7 +240,7 @@ export class Vestaboard {
       .map(task => Object.assign(task, {icon: icon(task.taskList)}))
       .filter(task => task.icon)
       .sampleSize(Vestaboard.ROWS)
-      .map(({icon, title}) => icon + title)
+      .map(({icon, title, notes}) => icon + title + (notes ? ': ' + notes.replace('\n', ' ').replace(/[^a-z]+/gi, ' ').trim() : ''))
     return this.write(result.value())
   }
 
