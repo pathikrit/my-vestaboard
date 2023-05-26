@@ -162,27 +162,35 @@ export class Vestaboard {
   })
 
   renderWeather = (forecast) => {
-    // https://github.com/vbguyny/ws4kp/blob/578d62a255cbae885fd3c3e840eed19d7a0bf434/Scripts/Icons.js#L124
-    const iconToKeyword = {
-      '🟥': ['Hot'],
-      '🟧': ['Sunny', 'Clear', 'Fair'],
-      '🟩': ['Windy', 'Breezy', 'Blustery'],
-      '🟪': ['Frost', 'Cold'],
-      '⬛': ['Cloud', 'Haze', 'Overcast', 'Fog', 'Smoke', 'Ash', 'Dust', 'Sand', 'Tstms'],
-      '🟦': ['Sleet', 'Spray', 'Rain', 'Shower', 'Spouts'],
-      '⬜': ['Snow', 'Ice', 'Blizzard']
-    }
     const result = _.chain(forecast)
       .sortBy(row => row.date.valueOf())
       .slice(0, Vestaboard.ROWS)
       .map(row => {
+        // https://github.com/vbguyny/ws4kp/blob/578d62a255cbae885fd3c3e840eed19d7a0bf434/Scripts/Icons.js#L124
         const description = mode(row.descriptions.map(Vestaboard.normalizeWeather))[0]
-        let icon = _.findKey(iconToKeyword, kws => kws.some(kw => description.includes(kw)))
-        if (row.date.isToday() && row.endHour === 23 && icon && icon !== '⬜') icon = '⬛' // Show either Night or Snow in night
+        const icon = () => {
+          let sunny = '🟪'
+          if (row.temperature >= 40) sunny = '🟩'
+          if (row.temperature >= 55) sunny = '🟨'
+          if (row.temperature >= 70) sunny = '🟧'
+          if (row.temperature >= 80) sunny = '🟥'
+          const isTonight = row.date.isToday() && row.endHour === 23
+          const table = [
+            ['🟥', ['Hot']],
+            [isTonight ? '⬛' : '🟧', ['Dust', 'Sand']],
+            [isTonight ? '⬛' : sunny, ['Sunny', 'Clear', 'Fair']],
+            [isTonight ? '⬛' : '🟩', ['Windy', 'Breezy', 'Blustery']],
+            ['🟪', ['Frost', 'Cold']],
+            ['⬛', ['Cloud', 'Haze', 'Overcast', 'Fog', 'Smoke', 'Ash', 'Tstms']],
+            ['🟦', ['Sleet', 'Spray', 'Rain', 'Shower', 'Spouts']],
+            ['⬜', ['Snow', 'Ice', 'Blizzard']]
+          ]
+          return _.head(table.find(([_, kws]) => kws.some(kw => description.includes(kw))))
+        }
         return [
           row.date.format('ddd'),
           row.temperature.toString().padStart(4, ' '),
-          icon ?? Vestaboard.nul,
+          icon() ?? Vestaboard.nul,
           ' ',
           description
         ].join('')
