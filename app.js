@@ -28,13 +28,14 @@ const config = {
     dayTime: {start: 10, end: 17} // We only care about weather between 10am and 5pm
   },
   haikuPrompt: () => {
+    const today = dayjs().format('DD-MMM')
     const regular = [
-      {birthday: '21-Mar', prompt: "Write a haiku about a cute baby boy named Aidan. He loves his mom, his pet cat Tigri and his red mini Pontiac Solstice. He calls cute things 'baa' and cool things 'boo' and calls his dad 'da-da'."},
+      {birthday: '21-Mar', prompt: "Write a haiku about a cute baby boy named Aidan. He loves his mom, his pet cat Tigri (coincidentally born on same day 9 years apart) and his red mini Pontiac Solstice. He calls cute things 'baa' and cool things 'boo' and calls his dad 'da-da'."},
       {birthday: '21-Mar', prompt: "Write a haiku about a beautiful Bengal cat called Tigri. She likes to purr on us while we sleep, bask in the sun, eat tuna and roll on her belly to get whipped."},
       {birthday: '5-Feb' , prompt: "Write a haiku about a beautiful woman named Nastenka. She likes to play with her little boy, Aidan and sleep with her husband, Rick."},
     ].map(({birthday, prompt}) => {
-      const suffix = dayjs().format('DD-MMM') === birthday ? 'Today is their birthday!' :
-        "You don't have to use all this information - just giving helpful tips."
+      const suffix = today === birthday ? `Today is ${prompt.contains('She ') ? 'her' : 'his'} birthday!` :
+        "You don't have to use all this information; just giving helpful tips."
       return [prompt, suffix, 'Just respond with the haiku and nothing else.'].join(' ')
     })
     const special = {
@@ -43,7 +44,7 @@ const config = {
       '29-Aug': "Today is marriage anniversary of Rick and Nastassia. Write a haiku about them.",
       '21-Dec': "Today is wedding anniversary of Rick and Nastassia. Write a haiku about them."
     }
-    return special[dayjs().format('DD-MMM')] ?? _.sample(regular)
+    return special[today] ?? _.sample(regular)
   },
   googleTasks: {
     token: { // see https://developers.google.com/tasks/quickstart/nodejs
