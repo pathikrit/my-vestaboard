@@ -156,9 +156,10 @@ export class Vestaboard {
       {to: 'Light ', from: ['Lt ']},
       {to: 'Tstms ', from: ['Thunderstorms']}
     ].map(({to, from}) => (s) => s.replaceAll(new RegExp(from.join('|'), 'g'), to))
-    return normalizers.reduce((d, f) => f(d), description)
+    return normalizers
+      .reduce((d, f) => f(d), description)
       .split(/[^A-Za-z]/)
-      .reduce((msg, token) => (msg + ' ' + token).length <= msgLength ? (msg + ' ' + token) : msg.padEnd(msgLength, ' '))
+      .reduce((msg, token) => ((msg + ' ' + token).length <= msgLength ? (msg + ' ' + token) : msg.padEnd(msgLength, ' ')).trim())
   })
 
   renderWeather = (forecast) => {
