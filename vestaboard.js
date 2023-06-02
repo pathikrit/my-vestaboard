@@ -179,10 +179,10 @@ export class Vestaboard {
           const table = [
             ['🟥', ['Hot']],
             [isTonight ? '⬛' : '🟧', ['Dust', 'Sand']],
-            [isTonight ? '⬛' : sunny, ['Sunny', 'Clear', 'Fair']],
+            [isTonight ? '⬛' : sunny, ['Sunny', 'Clear', 'Fair', 'Haze']],
             [isTonight ? '⬛' : '🟩', ['Windy', 'Breezy', 'Blustery']],
             ['🟪', ['Frost', 'Cold']],
-            ['⬛', ['Cloud', 'Haze', 'Overcast', 'Fog', 'Smoke', 'Ash', 'Tstms']],
+            ['⬛', ['Cloud', 'Overcast', 'Fog', 'Smoke', 'Ash', 'Tstms']],
             ['🟦', ['Sleet', 'Spray', 'Rain', 'Shower', 'Spouts']],
             ['⬜', ['Snow', 'Ice', 'Blizzard']]
           ]
