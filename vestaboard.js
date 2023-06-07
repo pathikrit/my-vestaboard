@@ -234,7 +234,8 @@ export class Vestaboard {
           '%'
         ].join('')
       )
-      .thru(result => _.zipWith(result.slice(0, Vestaboard.ROWS), result.slice(Vestaboard.ROWS).sort(), (l, r) => l + ' ' + r))
+      // TODO: https://github.com/lodash/lodash/pull/5336/files
+      .thru(result => _.zipWith(result.slice(0, Vestaboard.ROWS), result.slice(Vestaboard.ROWS), (l, r) => l + ' ' + r))
     return this.write(result.value())
   }
 

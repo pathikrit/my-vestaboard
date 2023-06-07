@@ -30,9 +30,9 @@ const config = {
   haikuPrompt: () => {
     const today = dayjs().format('DD-MMM')
     const regular = [
-      {birthday: '21-Mar', prompt: "Write a haiku about a cute baby boy named Aidan. He loves his mom, his pet cat Tigri (coincidentally born on same day 9 years apart) and his red mini Pontiac Solstice. He calls cute things 'baa' and cool things 'boo' and calls his dad 'da-da'."},
-      {birthday: '21-Mar', prompt: "Write a haiku about a beautiful Bengal cat called Tigri. She likes to purr on us while we sleep, bask in the sun, eat tuna and roll on her belly to get whipped."},
-      {birthday: '5-Feb' , prompt: "Write a haiku about a beautiful woman named Nastenka. She likes to play with her little boy, Aidan and sleep with her husband, Rick."},
+      {birthday: '21-Mar', prompt: "Write a haiku about a cute baby boy named Aidan. He loves his mom, his pet cat Tigri (coincidentally born on same day 9 years apart) and his red mini Pontiac Solstice. He calls cute things 'baa' and cool things 'boo' and calls his dad 'da-da'. Aidan loves exploring cool things in dad Rick's office and he loves drinking mom Nastenka's milk.He loves chasing Tigri. Aidan has beautiful brown eyes with long eyelashes and cute curly blonde hair. "},
+      {birthday: '21-Mar', prompt: "Write a haiku about a beautiful Bengal cat called Tigri. She likes to purr on us while we sleep, bask in the sun, eat tuna and roll on her belly to get whipped. Tigri is feisty and smart cat, she is very naughty around Nastenka and very calm around Rick. Nastenka and Rick are husband and wife. Their son Aidan loves Tigri and always tries to catch her. "},
+      {birthday: '5-Feb' , prompt: "Write a haiku about a beautiful woman named Nastenka. She likes to play with her little boy, Aidan and sleep with her husband, Rick. She enjoys cuddling with Rick, Aidan and their pet Bengal cat Tigri."},
     ].map(({birthday, prompt}) => {
       const suffix = today === birthday ? `Today is ${prompt.contains('She ') ? 'her' : 'his'} birthday!` :
         "You don't have to use all this information; just giving helpful tips."
@@ -161,7 +161,7 @@ const jobs = {
 }
 
 assert(_.sum(config.retryIntervalMinutes) < _.min(Object.values(jobs).map(job => job.displayFor)), 'Retries must finish within job gap')
-assert(Object.values(jobs).some(job => !job.check), 'Must be atleast one job without a checker!')
+assert(Object.values(jobs).filter(job => !job.check).length > 1, 'Must be >1 job without a checker!')
 
 const run = (current) => _.chain(Object.entries(jobs))
   .filter(([id, job]) => id !== current && (!job.check || job.check(dayjs())))
@@ -175,4 +175,4 @@ const run = (current) => _.chain(Object.entries(jobs))
 
 // yolo
 if (env.isProd) run()
-else jobs.weather.run()
+else jobs.stocks.run()
