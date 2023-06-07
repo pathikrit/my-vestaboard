@@ -28,24 +28,37 @@ const config = {
     dayTime: {start: 10, end: 17} // We only care about weather between 10am and 5pm
   },
   haikuPrompt: () => {
-    const today = dayjs().format('DD-MMM')
-    const regular = [
-      {birthday: '21-Mar', prompt: "Write a haiku about a cute baby boy named Aidan. He loves his mom, his pet cat Tigri (coincidentally born on same day 9 years apart) and his red mini Pontiac Solstice. He calls cute things 'baa' and cool things 'boo' and calls his dad 'da-da'. Aidan loves exploring cool things in dad Rick's office and he loves drinking mom Nastenka's milk.He loves chasing Tigri. Aidan has beautiful brown eyes with long eyelashes and cute curly blonde hair. "},
-      {birthday: '21-Mar', prompt: "Write a haiku about a beautiful Bengal cat called Tigri. She likes to purr on us while we sleep, bask in the sun, eat tuna and roll on her belly to get whipped. Tigri is feisty and smart cat, she is very naughty around Nastenka and very calm around Rick. Nastenka and Rick are husband and wife. Their son Aidan loves Tigri and always tries to catch her. "},
-      {birthday: '5-Feb' , prompt: "Write a haiku about a beautiful woman named Nastenka. She likes to play with her little boy, Aidan and sleep with her husband, Rick. She enjoys cuddling with Rick, Aidan and their pet Bengal cat Tigri."},
-    ].map(({birthday, prompt}) => {
-      const suffix = today === birthday ? `Today is ${prompt.contains('She ') ? 'her' : 'his'} birthday!` :
-        "You don't have to use all this information; just giving helpful tips."
-      return [prompt, suffix, 'Just respond with the haiku and nothing else.'].join(' ')
-    })
+    const prompt = `
+      I will describe to you my family:
+      "
+      My name is Rick. I am married to a beautiful woman named Nastenka (she also goes by Nastya)
+      We have a smart & cute baby boy named Aidan and beautiful Bengal cat called Tigri.
+      
+      Aidan:
+        Aidan loves exploring cool things in Rick's office (his favorite is a mini red Pontiac Solstice), suckling Nastenka's milk and chasing after Tigri. 
+        He has beautiful brown eyes with long eyelashes and cute curly blonde hair. 
+        He calls cute things 'baa' and cool things 'boo' and calls his dad 'da-da'.
+       
+      Nastenka / Nastya:
+        Nastenka loves to play with Aidan & Tigri and cuddle & sleep with Rick.
+      
+      Tigri:
+        Tigri likes to purr on us while we sleep, bask in the sun, eat tuna and roll on her belly to get whipped. 
+      "
+    `
     const special = {
-      '14-Feb': "Today is Valentine's Day. Write a Haiku about a beautiful woman named Nastassia who loves her husband, Rick.",
-      '8-Mar': "Today is Woman's Day. Write a Haiku about a beautiful woman named Nastassia.",
-      '29-Aug': "Today is marriage anniversary of Rick and Nastassia. Write a haiku about them.",
-      '21-Dec': "Today is wedding anniversary of Rick and Nastassia. Write a haiku about them.",
-      '4-Jul': "Welcome Svetik (Nastenka's best friend), Denis and little baby Leo to NYC! We are happy to host you in our home! You will have fun three weeks with us, and baby Leo and baby Aidan will play together. Write a haiku about them"
+      '5-Feb': "Today is Nastenka's birthday! Write a haiku about Nastenka!",
+      '14-Feb': "Today is Valentine's Day! Write a haiku about Rick & Nastenka!",
+      '8-Mar': "Today is Woman's Day! Write a haiku about Nestenka!",
+      '21-Mar': "Today is birthday of both Tigri and Aidan (born 9 years apart on same day)! Write a haiku about them!" ,
+      '29-Aug': "Today is marriage anniversary of Rick and Nastenka. Write a haiku about them!",
+      '21-Dec': "Today is wedding anniversary of Rick and Nastenka. Write a haiku about them!",
     }
-    return special[today] ?? _.sample(regular)
+    return [
+      prompt,
+      special[dayjs().format('DD-MMM')] ?? `Write a haiku about ${_.sample(['Aidan', 'Tigri', 'Nastenka'])}.`,
+      'Just respond with the haiku and nothing else'
+    ].join('\n\n')
   },
   googleTasks: {
     token: { // see https://developers.google.com/tasks/quickstart/nodejs
@@ -176,4 +189,4 @@ const run = (current) => _.chain(Object.entries(jobs))
 
 // yolo
 if (env.isProd) run()
-else jobs.stocks.run()
+else jobs.haiku.run()
