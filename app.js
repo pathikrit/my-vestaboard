@@ -42,7 +42,8 @@ const config = {
       '14-Feb': "Today is Valentine's Day. Write a Haiku about a beautiful woman named Nastassia who loves her husband, Rick.",
       '8-Mar': "Today is Woman's Day. Write a Haiku about a beautiful woman named Nastassia.",
       '29-Aug': "Today is marriage anniversary of Rick and Nastassia. Write a haiku about them.",
-      '21-Dec': "Today is wedding anniversary of Rick and Nastassia. Write a haiku about them."
+      '21-Dec': "Today is wedding anniversary of Rick and Nastassia. Write a haiku about them.",
+      '4-Jul': "Welcome Svetik (Nastenka's best friend), Denis and little baby Leo to NYC! We are happy to host you in our home! You will have fun three weeks with us, and baby Leo and baby Aidan will play together. Write a haiku about them"
     }
     return special[today] ?? _.sample(regular)
   },
