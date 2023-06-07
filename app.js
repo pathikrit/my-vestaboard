@@ -33,6 +33,7 @@ const config = {
       "
       My name is Rick. I am married to a beautiful woman named Nastenka (she also goes by Nastya)
       We have a smart & cute baby boy named Aidan and beautiful Bengal cat called Tigri.
+      We live in NYC.
       
       Aidan:
         Aidan loves exploring cool things in Rick's office (his favorite is a mini red Pontiac Solstice), suckling Nastenka's milk and chasing after Tigri. 
@@ -53,6 +54,7 @@ const config = {
       '21-Mar': "Today is birthday of both Tigri and Aidan (born 9 years apart on same day)! Write a haiku about them!" ,
       '29-Aug': "Today is marriage anniversary of Rick and Nastenka. Write a haiku about them!",
       '21-Dec': "Today is wedding anniversary of Rick and Nastenka. Write a haiku about them!",
+      '4-Jul': "Today, Nastenka's best friend from childhood, Svetik, comes to visit us with her husband Denis and their little boy Leo from Netherlands. Write a haiku about them!"
     }
     return [
       prompt,
