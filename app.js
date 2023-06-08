@@ -59,7 +59,7 @@ const config = {
     return [
       prompt,
       special[dayjs().format('DD-MMM')] ?? `Write a haiku about ${_.sample(['Aidan', 'Tigri', 'Nastenka'])}.`,
-      'Just respond with the haiku and nothing else'
+      'Just respond with the haiku and nothing else.'
     ].join('\n\n')
   },
   googleTasks: {
@@ -88,6 +88,7 @@ const config = {
     {ticker: 'ADBE'},
     {ticker: 'SNOW'}
   ],
+  defaultRefreshMinutes: 5,
   retryIntervalMinutes: [1, 1, 1, 1]
 }
 
@@ -152,7 +153,6 @@ const tasks = (maxDueDays) => {
 
 const jobs = {
   weather: {
-    displayFor: 5,
     run: () => weather(config.weather.url).then(board.renderWeather)
   },
   haiku: {
@@ -161,22 +161,19 @@ const jobs = {
     check: (date) => !_.inRange(date.hour(), 2, 7) // Skip haikus between 2am and 7am
   },
   stocks: {
-    displayFor: 5,
     run: () => Promise.all(config.tickers.map(fetchTickerData)).then(board.tickerTape),
     check: (date) => _.inRange(date.hour(), 9, 16) && _.inRange(date.day(), 1, 6) //Weekdays, 9am to 5pm
   },
   tasks: {
-    displayFor: 5,
     run: () => tasks(config.googleTasks.maxDueDays).then(board.renderTasks)
   },
   quotes: {
-    displayFor: 5,
     run: () => board.displayQuotes(quotes.parse_json()),
     check: (date) => !jobs.stocks.check(date)
   }
 }
 
-assert(_.sum(config.retryIntervalMinutes) < _.min(Object.values(jobs).map(job => job.displayFor)), 'Retries must finish within job gap')
+assert(_.sum(config.retryIntervalMinutes) < config.defaultRefreshMinutes, 'Retries must finish within defaultRefreshMinutes')
 assert(Object.values(jobs).filter(job => !job.check).length > 1, 'Must be >1 job without a checker!')
 
 const run = (current) => _.chain(Object.entries(jobs))
@@ -185,10 +182,10 @@ const run = (current) => _.chain(Object.entries(jobs))
   .thru(([id, job]) => job.run()
     .then(res => console.log(res))
     .catch(err => console.error(err))
-    .finally(() => setTimeout(run, job.displayFor * 60 * 1000, id))
+    .finally(() => setTimeout(run, Math.max(job.displayFor ?? 0, config.defaultRefreshMinutes) * 60 * 1000, id))
   )
   .value()
 
 // yolo
 if (env.isProd) run()
-else jobs.haiku.run()
+else jobs.tasks.run()
