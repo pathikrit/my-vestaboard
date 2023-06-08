@@ -226,16 +226,17 @@ export class Vestaboard {
     const result = quotes
       .slice(0, 2 * Vestaboard.ROWS)
       .sortBy(quote => quote.name.length > 4) // Makes sure 5 letter tickers are on the right column
-      .map(({name, regularMarketChangePercent: pctChange}, idx) =>
-        [
-          name.padEnd(idx < Vestaboard.ROWS ? 4 : 5, ' '),
-          pctChange < 0 ? '🟥' : '🟩',
-          pctChange.toFixed(pctChange > -10 ? 1 : 0).padStart(4, ' '),
-          '%'
-        ].join('')
+      .map((quote, idx) => Object.assign(quote, {
+          display: [
+            quote.name.padEnd(idx < Vestaboard.ROWS ? 4 : 5, ' '),
+            quote.regularMarketChangePercent < 0 ? '🟥' : '🟩',
+            quote.regularMarketChangePercent.toFixed(quote.regularMarketChangePercent > -10 ? 1 : 0).padStart(4, ' '),
+            '%'
+          ].join('')
+        })
       )
       // TODO: https://github.com/lodash/lodash/pull/5336/files
-      .thru(result => _.zipWith(result.slice(0, Vestaboard.ROWS), result.slice(Vestaboard.ROWS), (l, r) => l + ' ' + r))
+      .thru(result => _.zipWith(result.slice(0, Vestaboard.ROWS), _.sortBy(result.slice(Vestaboard.ROWS), quote => -Math.abs(quote.regularMarketChangePercent)), (l, r) => l.display + ' ' + r.display))
     return this.write(result.value())
   }
 
