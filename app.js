@@ -52,9 +52,10 @@ const config = {
       '14-Feb': "Today is Valentine's Day! Write a haiku about Rick & Nastenka!",
       '8-Mar': "Today is Woman's Day! Write a haiku about Nestenka!",
       '21-Mar': "Today is birthday of both Tigri and Aidan (born 9 years apart on same day)! Write a haiku about them!" ,
+      '25-Aug': "Today is Rick's birthday! Write a haiku about Rick!",
       '29-Aug': "Today is marriage anniversary of Rick and Nastenka. Write a haiku about them!",
       '21-Dec': "Today is wedding anniversary of Rick and Nastenka. Write a haiku about them!",
-      '4-Jul': "Today, Nastenka's best friend from childhood, Svetik, comes to visit us with her husband Denis and their little boy Leo from Netherlands. Write a haiku about them!"
+      '4-Jul': "Today, Nastenka's best friend from childhood, Svetik, comes to visit us with her husband Denis and their little boy Leo from Amsterdam. Write a haiku about them!"
     }
     return [
       prompt,
