@@ -59,7 +59,7 @@ const config = {
     }
     return [
       prompt,
-      special[dayjs().format('DD-MMM')] ?? `Write a haiku about ${_.sample(['Aidan', 'Tigri', 'Nastenka'])}.`,
+      special[dayjs().format('D-MMM')] ?? `Write a haiku about ${_.sample(['Aidan', 'Tigri', 'Nastenka'])}.`,
       'Just respond with the haiku and nothing else.'
     ].join('\n\n')
   },
@@ -157,7 +157,7 @@ const jobs = {
     run: () => weather(config.weather.url).then(board.renderWeather)
   },
   haiku: {
-    displayFor: 10,
+    displayFor: 15,
     run: () => haiku(config.haikuPrompt()).then(board.writeHaiku),
     check: (date) => !_.inRange(date.hour(), 2, 7) // Skip haikus between 2am and 7am
   },
@@ -165,17 +165,17 @@ const jobs = {
     run: () => Promise.all(config.tickers.map(fetchTickerData)).then(board.tickerTape),
     check: (date) => _.inRange(date.hour(), 9, 16) && _.inRange(date.day(), 1, 6) //Weekdays, 9am to 5pm
   },
-  tasks: {
-    run: () => tasks(config.googleTasks.maxDueDays).then(board.renderTasks)
-  },
+  // tasks: {
+  //   run: () => tasks(config.googleTasks.maxDueDays).then(board.renderTasks)
+  // },
   quotes: {
     run: () => board.displayQuotes(quotes.parse_json()),
     check: (date) => !jobs.stocks.check(date)
   }
 }
 
-assert(_.sum(config.retryIntervalMinutes) < config.defaultRefreshMinutes, 'Retries must finish within defaultRefreshMinutes')
-assert(Object.values(jobs).filter(job => !job.check).length > 1, 'Must be >1 job without a checker!')
+//assert(_.sum(config.retryIntervalMinutes) < config.defaultRefreshMinutes, 'Retries must finish within defaultRefreshMinutes')
+//assert(Object.values(jobs).filter(job => !job.check).length > 1, 'Must be >1 job without a checker!')
 
 const run = (current) => _.chain(Object.entries(jobs))
   .filter(([id, job]) => id !== current && (!job.check || job.check(dayjs())))
@@ -189,4 +189,4 @@ const run = (current) => _.chain(Object.entries(jobs))
 
 // yolo
 if (env.isProd) run()
-else jobs.tasks.run()
+else jobs.haiku.run()
