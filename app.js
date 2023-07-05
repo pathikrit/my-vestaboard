@@ -44,7 +44,9 @@ const config = {
         Nastenka loves to play with Aidan & Tigri and cuddle & sleep with Rick.
       
       Tigri:
-        Tigri likes to purr on us while we sleep, bask in the sun, eat tuna and roll on her belly to get whipped. 
+        Tigri likes to purr on us while we sleep, bask in the sun, eat tuna and roll on her belly to get whipped.
+        
+      Nastenka's best friend from childhood, Svetik, is here to visit us with her husband Denis and their little boy Leo from Amsterdam. Write a haiku about them! 
       "
     `
     const special = {
@@ -55,11 +57,10 @@ const config = {
       '25-Aug': "Today is Rick's birthday! Write a haiku about Rick!",
       '29-Aug': "Today is marriage anniversary of Rick and Nastenka. Write a haiku about them!",
       '21-Dec': "Today is wedding anniversary of Rick and Nastenka. Write a haiku about them!",
-      '4-Jul': "Today, Nastenka's best friend from childhood, Svetik, comes to visit us with her husband Denis and their little boy Leo from Amsterdam. Write a haiku about them!"
     }
     return [
       prompt,
-      special[dayjs().format('D-MMM')] ?? `Write a haiku about ${_.sample(['Aidan', 'Tigri', 'Nastenka'])}.`,
+      //special[dayjs().format('D-MMM')] ?? `Write a haiku about ${_.sample(['Aidan', 'Tigri', 'Nastenka'])}.`,
       'Just respond with the haiku and nothing else.'
     ].join('\n\n')
   },
