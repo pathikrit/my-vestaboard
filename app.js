@@ -32,21 +32,19 @@ const config = {
       I will describe to you my family:
       "
       My name is Rick. I am married to a beautiful woman named Nastenka (she also goes by Nastya)
-      We have a smart & cute baby boy named Aidan and beautiful Bengal cat called Tigri.
+      We have a smart & cute baby boy named Aidan and a beautiful Bengal cat called Tigri.
       We live in NYC.
       
       Aidan:
         Aidan loves exploring cool things in Rick's office (his favorite is a mini red Pontiac Solstice), suckling Nastenka's milk and chasing after Tigri. 
         He has beautiful brown eyes with long eyelashes and cute curly blonde hair. 
-        He calls cute things 'baa' and cool things 'boo' and calls his dad 'da-da'.
+        He calls cute things 'baa' and cool things 'boo' and calls his dad 'dada'.
        
       Nastenka / Nastya:
         Nastenka loves to play with Aidan & Tigri and cuddle & sleep with Rick.
       
       Tigri:
-        Tigri likes to purr on us while we sleep, bask in the sun, eat tuna and roll on her belly to get whipped.
-        
-      Nastenka's best friend from childhood, Svetik, is here to visit us with her husband Denis and their little boy Leo from Amsterdam. Write a haiku about them! 
+        Tigri likes to purr on us while we sleep, bask in the sun, eat tuna and roll on her belly to get whipped.        
       "
     `
     const special = {
@@ -60,7 +58,7 @@ const config = {
     }
     return [
       prompt,
-      //special[dayjs().format('D-MMM')] ?? `Write a haiku about ${_.sample(['Aidan', 'Tigri', 'Nastenka'])}.`,
+      special[dayjs().format('D-MMM')] ?? `Write a haiku about ${_.sample(['Aidan', 'Tigri', 'Nastenka'])}.`,
       'Just respond with the haiku and nothing else.'
     ].join('\n\n')
   },
@@ -158,13 +156,12 @@ const jobs = {
     run: () => weather(config.weather.url).then(board.renderWeather)
   },
   haiku: {
-    displayFor: 15,
     run: () => haiku(config.haikuPrompt()).then(board.writeHaiku),
     check: (date) => !_.inRange(date.hour(), 2, 7) // Skip haikus between 2am and 7am
   },
   stocks: {
     run: () => Promise.all(config.tickers.map(fetchTickerData)).then(board.tickerTape),
-    check: (date) => _.inRange(date.hour(), 9, 16) && _.inRange(date.day(), 1, 6) //Weekdays, 9am to 5pm
+    check: (date) => _.inRange(date.hour(), 9, 17) && _.inRange(date.day(), 1, 6) //Weekdays, 9am to 5pm
   },
   // tasks: {
   //   run: () => tasks(config.googleTasks.maxDueDays).then(board.renderTasks)
