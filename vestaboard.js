@@ -150,7 +150,7 @@ export class Vestaboard {
     const normalizers = [
       {to: '&', from: ['And']},
       {to: '', from: ['Increasing', 'Becoming', 'Decreasing', 'Gradual', 'Patchy', 'Areas', 'Freezing']},
-      {to: 'Slight', from: ['Slight Chance', 'Chance', 'Isolated', 'Scattered']},
+      {to: 'Slight', from: ['Slight Chance', 'Slight Chance Light', 'Chance', 'Isolated', 'Scattered']},
       {to: 'Rain', from: ['Rain Showers', 'Spray', 'Rain Fog', 'Showers']},
       {to: 'Snow', from: ['Snow Showers', 'Wintry Mix', 'Flurries']},
       {to: 'Light ', from: ['Lt ']},
