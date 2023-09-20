@@ -153,7 +153,7 @@ export class Vestaboard {
       {to: 'Slight', from: ['Slight Chance', 'Slight Chance Light', 'Chance', 'Isolated', 'Scattered', 'Chance Light']},
       {to: 'Rain', from: ['Rain Showers', 'Spray', 'Rain Fog', 'Showers']},
       {to: 'Snow', from: ['Snow Showers', 'Wintry Mix', 'Flurries']},
-      {to: 'Light ', from: ['Lt ']},
+      {to: 'Light ', from: ['Lt ', 'Slight Light ']},
       {to: 'Tstms ', from: ['Thunderstorms']}
     ].map(({to, from}) => (s) => s.replaceAll(new RegExp(from.join('|'), 'g'), to))
     return normalizers
