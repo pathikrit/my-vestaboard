@@ -151,8 +151,8 @@ export class Vestaboard {
       {to: '&', from: ['And']},
       {to: '', from: ['Increasing', 'Becoming', 'Decreasing', 'Gradual', 'Patchy', 'Areas Of', 'Freezing']},
       {to: 'Heavy', from: ['Widespread']},
-      {to: 'Light ', from: ['Lt', 'Slight Light', 'Very Light']},
-      {to: 'Slight', from: ['Slight Chance', 'Slight Chance Light', 'Chance', 'Isolated', 'Scattered', 'Chance Light', 'Periods Of']},
+      {to: 'Light ', from: ['Lt ', 'Slight Light', 'Very Light']},
+      {to: 'Slight', from: ['Slight Chance', 'Slight Light', 'Slight Chance Light', 'Chance', 'Isolated', 'Scattered', 'Chance Light', 'Periods Of']},
       {to: 'Rain', from: ['Rain Showers', 'Spray', 'Rain Fog', 'Showers']},
       {to: 'Snow', from: ['Snow Showers', 'Wintry Mix', 'Flurries']},
       {to: 'Tstms ', from: ['Thunderstorms']}
