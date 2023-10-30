@@ -149,11 +149,12 @@ export class Vestaboard {
     const msgLength = Vestaboard.COLS - (3+4+1+1)
     const normalizers = [
       {to: '&', from: ['And']},
-      {to: '', from: ['Increasing', 'Becoming', 'Decreasing', 'Gradual', 'Patchy', 'Areas', 'Freezing']},
-      {to: 'Slight', from: ['Slight Chance', 'Slight Chance Light', 'Chance', 'Isolated', 'Scattered', 'Chance Light']},
+      {to: '', from: ['Increasing', 'Becoming', 'Decreasing', 'Gradual', 'Patchy', 'Areas Of', 'Freezing']},
+      {to: 'Heavy', from: ['Widespread']},
+      {to: 'Light ', from: ['Lt', 'Slight Light', 'Very Light']},
+      {to: 'Slight', from: ['Slight Chance', 'Slight Chance Light', 'Chance', 'Isolated', 'Scattered', 'Chance Light', 'Periods Of']},
       {to: 'Rain', from: ['Rain Showers', 'Spray', 'Rain Fog', 'Showers']},
       {to: 'Snow', from: ['Snow Showers', 'Wintry Mix', 'Flurries']},
-      {to: 'Light ', from: ['Lt ', 'Slight Light ']},
       {to: 'Tstms ', from: ['Thunderstorms']}
     ].map(({to, from}) => (s) => s.replaceAll(new RegExp(from.join('|'), 'g'), to))
     return normalizers
