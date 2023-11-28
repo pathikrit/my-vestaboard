@@ -156,7 +156,7 @@ export class Vestaboard {
       {to: 'Rain', from: ['Rain Showers', 'Spray', 'Rain Fog', 'Showers']},
       {to: 'Snow', from: ['Snow Showers', 'Wintry Mix', 'Flurries']},
       {to: 'Tstms ', from: ['Thunderstorms']}
-    ].map(({to, from}) => (s) => s.replaceAll(new RegExp(from.join('|'), 'g'), to))
+    ].map(({to, from}) => (s) => s.replaceAll(new RegExp(from.sort((a, b) => b.length - a.length).join('|'), 'g'), to))
     return normalizers
       .reduce((d, f) => f(d), description)
       .split(/[^A-Za-z]/)
