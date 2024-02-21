@@ -25,7 +25,7 @@ const config = {
   vestaBoardApiKey: process.env.VESTABOARD_READ_WRITE_KEY,
   weather: {
     url: 'https://api.weather.gov/gridpoints/OKX/34,46/forecast/hourly', // Get this from https://api.weather.gov/points/40.9398,-73.9449
-    dayTime: {start: 10, end: 17} // We only care about weather between 10am and 5pm
+    dayTime: {start: 10, end: 17} // We only care about the weather between 10am and 5pm
   },
   haikuPrompt: () => {
     const prompt = `
@@ -36,25 +36,25 @@ const config = {
       We live in NYC.
       
       Aidan:
-        Aidan loves exploring cool things in Rick's office (his favorite is a mini red Pontiac Solstice), suckling Nastenka's milk and chasing after Tigri. 
+        Aidan loves exploring cool things in Rick's office (his favorite is a mini red Pontiac Solstice), suckling Nastenka's milk, and chasing after Tigri. 
         He has beautiful brown eyes with long eyelashes and cute curly blonde hair. 
-        He calls cute things 'baa' and cool things 'boo' and calls his dad 'dada'.
+        His favorite toys are little cars and a yellow school bus
        
       Nastenka / Nastya:
         Nastenka loves to play with Aidan & Tigri and cuddle & sleep with Rick.
       
       Tigri:
-        Tigri likes to purr on us while we sleep, bask in the sun, eat tuna and roll on her belly to get whipped.        
+        Tigri likes to purr on us while we sleep, bask in the sun, eat tuna, and roll on her belly to get whipped.        
       "
     `
     const special = {
       '5-Feb': "Today is Nastenka's birthday! Write a haiku about Nastenka!",
       '14-Feb': "Today is Valentine's Day! Write a haiku about Rick & Nastenka!",
-      '8-Mar': "Today is Woman's Day! Write a haiku about Nestenka!",
-      '21-Mar': "Today is birthday of both Tigri and Aidan (born 9 years apart on same day)! Write a haiku about them!" ,
+      '8-Mar': "Today is Woman's Day! Write a haiku about Nastenka!",
+      '21-Mar': "Today is the birthday of both Tigri and Aidan (born 9 years apart on the same day)! Write a haiku about them!" ,
       '25-Aug': "Today is Rick's birthday! Write a haiku about Rick!",
-      '29-Aug': "Today is marriage anniversary of Rick and Nastenka. Write a haiku about them!",
-      '21-Dec': "Today is wedding anniversary of Rick and Nastenka. Write a haiku about them!",
+      '29-Aug': "Today is the marriage anniversary of Rick and Nastenka. Write a haiku about them!",
+      '21-Dec': "Today is the wedding anniversary of Rick and Nastenka. Write a haiku about them!",
     }
     return [
       prompt,
