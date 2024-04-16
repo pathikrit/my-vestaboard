@@ -183,7 +183,7 @@ export class Vestaboard {
             [isTonight ? '⬛' : '🟩', ['Windy', 'Breezy', 'Blustery']],
             ['🟪', ['Frost', 'Cold']],
             ['⬛', ['Cloud', 'Overcast', 'Fog', 'Smoke', 'Ash', 'Tstms']],
-            ['🟦', ['Sleet', 'Spray', 'Rain', 'Shower', 'Spouts']],
+            ['🟦', ['Sleet', 'Spray', 'Rain', 'Shower', 'Spouts', 'Drizzle']],
             ['⬜', ['Snow', 'Ice', 'Blizzard']]
           ]
           return _.head(table.find(([_, kws]) => kws.some(kw => description.includes(kw))))
