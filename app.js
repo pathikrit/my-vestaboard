@@ -7,7 +7,7 @@ import {mean} from 'mathjs'
 import dayjs from 'dayjs-with-plugins'
 import yahooFinance from 'yahoo-finance2'
 import {google} from 'googleapis'
-import {Configuration as OpenAIConfig, OpenAIApi, ChatCompletionRequestMessageRoleEnum as Role} from 'openai'
+import OpenAI from 'openai'
 import assert from 'node:assert'
 import dotenv from 'dotenv'
 import quotes from 'quotesy'
@@ -34,17 +34,17 @@ const config = {
       My name is Rick. I am married to a beautiful woman named Nastenka (she also goes by Nastya)
       We have a smart & cute baby boy named Aidan and a beautiful Bengal cat called Tigri.
       We live in NYC.
-      
+
       Aidan:
-        Aidan loves exploring cool things in Rick's office (his favorite is a mini red Pontiac Solstice), suckling Nastenka's milk, and chasing after Tigri. 
-        He has beautiful brown eyes with long eyelashes and cute curly blonde hair. 
+        Aidan loves exploring cool things in Rick's office (his favorite is a mini red Pontiac Solstice), suckling Nastenka's milk, and chasing after Tigri.
+        He has beautiful brown eyes with long eyelashes and cute curly blonde hair.
         His favorite toys are little cars and a yellow school bus
-       
+
       Nastenka / Nastya:
         Nastenka loves to play with Aidan & Tigri and cuddle & sleep with Rick.
-      
+
       Tigri:
-        Tigri likes to purr on us while we sleep, bask in the sun, eat tuna, and roll on her belly to get whipped.        
+        Tigri likes to purr on us while we sleep, bask in the sun, eat tuna, and roll on her belly to get whipped.
       "
     `
     const special = {
@@ -109,11 +109,10 @@ google.options({auth: google.auth.fromJSON(config.googleTasks.token)})
 
 const taskApi = google.tasks('v1')
 const board = new Vestaboard(config.vestaBoardApiKey)
-const openai = new OpenAIApi(new OpenAIConfig({apiKey: config.openAiApiKey}))
+const openai = new OpenAI({apiKey: config.openAiApiKey})
 
-const haiku = (prompt) => openai
-  .createChatCompletion(Object.assign(config.chatApiParams, {messages: [{role: Role.User, content: prompt}]}))
-  .then(res => res.data.choices[0].message.content)
+const haiku = (prompt) => openai.chat.completions.create(Object.assign(config.chatApiParams, {messages: [{role: 'user', content: prompt}]}))
+  .then(res => res.choices[0].message.content)
 
 const weather = (url) => axios.get(url)
   .then(res => res.data.properties.periods)
