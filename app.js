@@ -156,7 +156,7 @@ const jobs = {
   },
   haiku: {
     run: () => haiku(config.haikuPrompt()).then(board.writeHaiku),
-    check: (date) => !_.inRange(date.hour(), 2, 7) // Skip haikus between 2am and 7am
+    check: (date) => !_.inRange(date.hour(), 2, 17) // Skip haikus between 2am and 5pm
   },
   stocks: {
     run: () => Promise.all(config.tickers.map(fetchTickerData)).then(board.tickerTape),
