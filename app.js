@@ -82,8 +82,8 @@ const config = {
     {ticker: '^GSPC', name: 'SP500'},
     {ticker: '^TYX', name: 'UST30'},
     {ticker: 'TSM', name: 'TSMC'},
-    {ticker: 'NVDA'},    
-    {ticker: 'NFLX'},    
+    {ticker: 'NVDA'},
+    {ticker: 'NFLX'},
     {ticker: 'SNOW'},
     {ticker: 'LCSIX', name: 'LCSX'},
     {ticker: 'UGL'},
@@ -190,4 +190,4 @@ const run = (current) => _.chain(Object.entries(jobs))
 
 // yolo
 if (env.isProd) run()
-else jobs.haiku.run()
+else jobs.stocks.run()

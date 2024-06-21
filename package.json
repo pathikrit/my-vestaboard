@@ -19,7 +19,7 @@
     "openai": "^4.44.0",
     "quotesy": "^1.0.10",
     "word-wrap": "^1.2.5",
-    "yahoo-finance2": "^2.11.2"
+    "yahoo-finance2": "^2.11.3"
   },
   "engines": {
     "npm": ">=8",
