@@ -23,7 +23,7 @@ const config = {
   chatApiParams: {model: 'gpt-3.5-turbo'}, // See https://platform.openai.com/docs/api-reference/chat/create
   openAiApiKey: process.env.OPENAI_API_KEY,
   vestaBoardApiKey: process.env.VESTABOARD_READ_WRITE_KEY,
-  doWrites: !env.isProd,  // Set to false locally to prevent writes to the board
+  doWrites: env.isProd,  // Set this flag to true locally to do writes to the board
   weather: {
     url: 'https://api.weather.gov/gridpoints/OKX/34,46/forecast/hourly', // Get this from https://api.weather.gov/points/40.9398,-73.9449
     dayTime: {start: 10, end: 17} // We only care about the weather between 10am and 5pm
