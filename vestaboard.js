@@ -154,7 +154,7 @@ export class Vestaboard {
       {to: 'Light ', from: ['Lt ', 'Very Light', 'Slight Chance', 'Slight Light', 'Slight Chance Light', 'Chance', 'Isolated', 'Scattered', 'Chance Light', 'Periods Of Light', 'Slight Chance Very Light', 'Intermittent Light', 'Chance Very Light', 'Intermittent']},
       {to: 'Rain', from: ['Rain Showers', 'Spray', 'Rain Fog', 'Showers']},
       {to: 'Snow', from: ['Snow Showers', 'Wintry Mix', 'Flurries']},
-      {to: 'Tstms ', from: ['Thunderstorms']}
+      {to: 'Storm ', from: ['Thunderstorms', 'T-storms']}
     ].map(({to, from}) => (s) => s.replaceAll(new RegExp(from.sort((a, b) => b.length - a.length).join('|'), 'g'), to))
     return normalizers
       .reduce((d, f) => f(d), description)
