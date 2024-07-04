@@ -182,7 +182,7 @@ export class Vestaboard {
             [isTonight ? '⬛' : sunny, ['Sunny', 'Clear', 'Fair', 'Haze']],
             [isTonight ? '⬛' : '🟩', ['Windy', 'Breezy', 'Blustery']],
             ['🟪', ['Frost', 'Cold']],
-            ['⬛', ['Cloud', 'Overcast', 'Fog', 'Smoke', 'Ash', 'Tstms']],
+            ['⬛', ['Cloud', 'Overcast', 'Fog', 'Smoke', 'Ash', 'Storm']],
             ['🟦', ['Sleet', 'Spray', 'Rain', 'Shower', 'Spouts', 'Drizzle']],
             ['⬜', ['Snow', 'Ice', 'Blizzard']]
           ]
