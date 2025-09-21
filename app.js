@@ -20,7 +20,7 @@ const env = {
 
 process.env.TZ = 'America/New_York'
 const config = {
-  chatApiParams: {model: 'gpt-3.5-turbo'}, // See https://platform.openai.com/docs/api-reference/chat/create
+  chatApiParams: {model: 'gpt-5-mini-2025-08-07'}, // See https://platform.openai.com/docs/api-reference/chat/create
   openAiApiKey: process.env.OPENAI_API_KEY,
   vestaBoardApiKey: process.env.VESTABOARD_READ_WRITE_KEY,
   doWrites: env.isProd,  // Set this flag to true locally to do writes to the board
