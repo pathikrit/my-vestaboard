@@ -33,16 +33,18 @@ const config = {
       I will describe to you my family:
       "
       My name is Rick. I am married to a beautiful woman named Nastenka (she also goes by Nastya)
-      We have a smart & cute baby boy named Aidan and a beautiful Bengal cat called Tigri.
+      We have a smart & cute boy named Aidan, a newborn baby boy named Kieran and a beautiful Bengal cat called Tigri.
       We live in NYC.
 
       Aidan:
-        Aidan loves exploring cool things in Rick's office (his favorite is a mini red Pontiac Solstice), suckling Nastenka's milk, and chasing after Tigri.
-        He has beautiful brown eyes with long eyelashes and cute curly blonde hair.
-        His favorite toys are little cars and a yellow school bus
+        Aidan loves exploring cool things in Rick's office (his favorite is a mini red Pontiac Solstice) and chasing after Tigri.
+        He has beautiful brown eyes with long eyelashes and cute curly blonde hair.        
+
+      Kieran:
+        Newborn baby boy - just suckling Nastenka's milk for now
 
       Nastenka / Nastya:
-        Nastenka loves to play with Aidan & Tigri and cuddle & sleep with Rick.
+        Nastenka loves to play with Aidan, Kieran & Tigri and cuddle & sleep with Rick.
 
       Tigri:
         Tigri likes to purr on us while we sleep, bask in the sun, eat tuna, and roll on her belly to get whipped.
@@ -55,6 +57,7 @@ const config = {
       '21-Mar': "Today is the birthday of both Tigri and Aidan (born 9 years apart on the same day)! Write a haiku about them!" ,
       '25-Aug': "Today is Rick's birthday! Write a haiku about Rick!",
       '29-Aug': "Today is the marriage anniversary of Rick and Nastenka. Write a haiku about them!",
+      "17-Sep": "Today is Kieran's birthday! Write a haiku about Kieran!",
       '21-Dec': "Today is the wedding anniversary of Rick and Nastenka. Write a haiku about them!",
     }
     return [
@@ -77,7 +80,6 @@ const config = {
     {ticker: 'AMZN'},
     {ticker: 'BTC-USD', name: 'BTC'},
     {ticker: 'CTA'},
-    {ticker: 'EUO'},
     {ticker: 'DBMF'},
     {ticker: 'GOOGL'},
     {ticker: 'KMLM'},
@@ -93,7 +95,6 @@ const config = {
     {ticker: 'TSM', name: 'TSMC'},
     {ticker: 'UGL'},
     {ticker: '^TYX', name: 'UST30'},
-    {ticker: 'YCS'},  
     {ticker: 'YINN'},    
     {ticker: 'ZROZ'},
   ],
