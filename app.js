@@ -162,12 +162,13 @@ const tasks = (maxDueDays) => {
 
 const jobs = {
   weather: {
-    run: () => weather(config.weather.url).then(board.renderWeather)
+    run: () => weather(config.weather.url).then(board.renderWeather),
+    check: (date) => !jobs.stocks.check(date)
   },
-  haiku: {
-    run: () => haiku(config.haikuPrompt()).then(board.writeHaiku),
-    check: (date) => !_.inRange(date.hour(), 2, 17) // Skip haikus between 2am and 5pm
-  },
+  // haiku: {
+  //   run: () => haiku(config.haikuPrompt()).then(board.writeHaiku),
+  //   check: (date) => !_.inRange(date.hour(), 2, 17) // Skip haikus between 2am and 5pm
+  // },
   stocks: {
     run: () => Promise.all(config.tickers.map(fetchTickerData)).then(board.tickerTape),
     check: (date) => _.inRange(date.hour(), 9, 17) && _.inRange(date.day(), 1, 6) //Weekdays, 9am to 5pm
@@ -175,10 +176,10 @@ const jobs = {
   // tasks: {
   //   run: () => tasks(config.googleTasks.maxDueDays).then(board.renderTasks)
   // },
-  quotes: {
-    run: () => board.displayQuotes(quotes.parse_json()),
-    check: (date) => !jobs.stocks.check(date)
-  }
+  // quotes: {
+  //   run: () => board.displayQuotes(quotes.parse_json()),
+  //   check: (date) => !jobs.stocks.check(date)
+  // }
 }
 
 //assert(_.sum(config.retryIntervalMinutes) < config.defaultRefreshMinutes, 'Retries must finish within defaultRefreshMinutes')
