@@ -33,15 +33,14 @@ const config = {
       I will describe to you my family:
       "
       My name is Rick. I am married to a beautiful woman named Nastenka (she also goes by Nastya)
-      We have a smart & cute boy named Aidan, a newborn baby boy named Kieran and a beautiful Bengal cat called Tigri.
+      We have a smart & cute boy named Aidan, a baby boy named Kieran and a beautiful Bengal cat called Tigri.
       We live in NYC.
 
       Aidan:
-        Aidan loves exploring cool things in Rick's office (his favorite is a mini red Pontiac Solstice) and chasing after Tigri.
-        He has beautiful brown eyes with long eyelashes and cute curly blonde hair.        
+        Aidan loves exploring cool things in Rick's office and pretending to be a magician.        
 
       Kieran:
-        Newborn baby boy - just suckling Nastenka's milk for now
+        Toddler baby boy - just suckling Nastenka's milk for now; loves Tigri and his brother Aidan
 
       Nastenka / Nastya:
         Nastenka loves to play with Aidan, Kieran & Tigri and cuddle & sleep with Rick.
@@ -188,7 +187,7 @@ const jobs = {
 const run = (current) => _.chain(Object.entries(jobs))
   .filter(([id, job]) => id !== current && (!job.check || job.check(dayjs())))
   .sample()
-  .thru(sample => sample ?? [current, jobs[current]])
+  .thru(sample => sample ?? [current, jobs[current]]) // rerun current job if no new job to run
   .thru(([id, job]) => job.run()
     .then(res => console.log(res))
     .catch(err => console.error(err))
