@@ -161,31 +161,36 @@ const tasks = (maxDueDays) => {
 
 const jobs = {
   weather: {
+    enabled: true,
     run: () => weather(config.weather.url).then(board.renderWeather),
     check: (date) => !jobs.stocks.check(date)
   },
-  // haiku: {
-  //   run: () => haiku(config.haikuPrompt()).then(board.writeHaiku),
-  //   check: (date) => !_.inRange(date.hour(), 2, 17) // Skip haikus between 2am and 5pm
-  // },
+  haiku: {
+    enabled: false,
+    run: () => haiku(config.haikuPrompt()).then(board.writeHaiku),
+    check: (date) => !_.inRange(date.hour(), 2, 17) // Skip haikus between 2am and 5pm
+  },
   stocks: {
+    enabled: true,
     run: () => Promise.all(config.tickers.map(fetchTickerData)).then(board.tickerTape),
     check: (date) => _.inRange(date.hour(), 9, 17) && _.inRange(date.day(), 1, 6) //Weekdays, 9am to 5pm
   },
-  // tasks: {
-  //   run: () => tasks(config.googleTasks.maxDueDays).then(board.renderTasks)
-  // },
-  // quotes: {
-  //   run: () => board.displayQuotes(quotes.parse_json()),
-  //   check: (date) => !jobs.stocks.check(date)
-  // }
+  tasks: {
+    enabled: false,
+    run: () => tasks(config.googleTasks.maxDueDays).then(board.renderTasks)
+  },
+  quotes: {
+    enabled: false,
+    run: () => board.displayQuotes(quotes.parse_json()),
+    check: (date) => !jobs.stocks.check(date)
+  }
 }
 
 //assert(_.sum(config.retryIntervalMinutes) < config.defaultRefreshMinutes, 'Retries must finish within defaultRefreshMinutes')
 //assert(Object.values(jobs).filter(job => !job.check).length > 1, 'Must be >1 job without a checker!')
 
 const run = (current) => _.chain(Object.entries(jobs))
-  .filter(([id, job]) => id !== current && (!job.check || job.check(dayjs())))
+  .filter(([id, job]) => job.enabled && id !== current && (!job.check || job.check(dayjs())))
   .sample()
   .thru(sample => sample ?? [current, jobs[current]]) // rerun current job if no new job to run
   .thru(([id, job]) => job.run()
