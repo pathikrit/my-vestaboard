@@ -188,6 +188,7 @@ const jobs = {
 const run = (current) => _.chain(Object.entries(jobs))
   .filter(([id, job]) => id !== current && (!job.check || job.check(dayjs())))
   .sample()
+  .thru(sample => sample ?? [current, jobs[current]])
   .thru(([id, job]) => job.run()
     .then(res => console.log(res))
     .catch(err => console.error(err))
